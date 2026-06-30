@@ -12,5 +12,22 @@ def get_rates(from_id, to_id):
     url = f"{BASE_URL}/{API_KEY}/rates/{from_id}-{to_id}"
     response = requests.get(url)
     data = response.json()
-    return data.get("rates", {})
-get_rates(48,93)
+    rates = data.get("rates", {})
+    lst = list(rates.values())[0]
+    return lst
+##################################################
+currencies = get_currencies()
+def get_currency_id(currencies, code):
+    for c in currencies:
+        if c["code"] == code:
+            return c["id"]
+    return None
+##################################################
+def get_rates_by_name(from_code, to_code):
+    from_id = get_currency_id(currencies, from_code)
+    to_id = get_currency_id(currencies, to_code)
+    if not from_id or not to_id:
+        print("Currency not found")
+        return[]
+    rates = get_rates(from_id, to_id)
+    return rates
