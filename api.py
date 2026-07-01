@@ -12,9 +12,9 @@ def get_rates(from_id, to_id):
     url = f"{BASE_URL}/{API_KEY}/rates/{from_id}-{to_id}"
     response = requests.get(url)
     data = response.json()
-    rates = data.get("rates", {})
-    lst = list(rates.values())[0]
-    return lst
+    rates_dict = data.get("rates", {})
+    rates = list(rates_dict.values())[0]
+    return rates
 ##################################################
 currencies = get_currencies()
 def get_currency_id(currencies, code):
