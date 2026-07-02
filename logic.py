@@ -5,4 +5,14 @@ def sort_rates(rates):
 def filter_rates(rates, margin=0.02):
     best_changer = rates[0]
     min_rate = float(best_changer.get('rate')) * (1-margin)
-    return best_changer, min_rate
+    for r in rates:
+        if r == best_changer:
+            r["tag"] = "BEST"
+        elif r > min_rate:
+            r["tag"] = "GOOD"
+        else:
+            r["tag"] = "" 
+        result.append(r)
+    return result
+
+result = []
