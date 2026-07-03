@@ -20,6 +20,9 @@ def get_currency_codes():
     output = tk.Label(root, text="")
     output.pack()
     result = {}
+
+    # #List of changers
+    # text = tk.Text(root, text)
     def on_click():
         result["from_code"] = from_input.get().upper()
         result["to_code"] = to_input.get().upper()
