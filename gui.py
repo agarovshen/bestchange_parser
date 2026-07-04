@@ -1,7 +1,7 @@
 import tkinter as tk
 from formatter import format_changer
 
-def get_currency_codes():
+def run_app(on_search):
     root = tk.Tk()
     root.geometry("400x300")
     root.title("Arbitrage Bot")
@@ -28,21 +28,24 @@ def get_currency_codes():
         result["from_code"] = from_input.get().upper()
         result["to_code"] = to_input.get().upper()
         # output.config(text=f"Loading {result['from_code']} -> {result['to_code']} ...")
-        root.destroy()
-   
+        # root.destroy()
+        # return result["from_code"], result["to_code"]
     btn = tk.Button(root, text="GET RATES", command=on_click)
     btn.pack()
+    on_search("BTC", "LTC")
+    # from_code, to_code = on_click()
+    # print(from_code,to_code)
+    # tk.Label(root, text=(from_code,to_code)).pack()
+    # on_search(from_code, to_code)
     root.mainloop()
-    return result["from_code"], result["to_code"]
+# def show_rates(rates):
+#     root = tk.Tk()
+#     root.geometry("800x500")
+#     root.title("Exchange Rates")
 
-def show_rates(rates):
-    root = tk.Tk()
-    root.geometry("800x500")
-    root.title("Exchange Rates")
+#     text = tk.Text(root)
+#     text.pack(fill="both", expand=True)
 
-    text = tk.Text(root)
-    text.pack(fill="both", expand=True)
-
-    for r in rates:
-        text.insert("end", format_changer(r) + "\n")    
-    root.mainloop()
+#     for r in rates:
+#         text.insert("end", format_changer(r) + "\n")    
+#     root.mainloop()
