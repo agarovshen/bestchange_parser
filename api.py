@@ -20,7 +20,7 @@ currencies = get_currencies()
 def get_currency_id(currencies, code):
     for c in currencies:
         if c["code"] == code:
-            return c["id"]
+            return c["name"]
     return None
 ##################################################
 def get_rates_by_name(from_code, to_code):

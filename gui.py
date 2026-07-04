@@ -38,7 +38,17 @@ def run_app(on_search):
     def on_click():
         from_code = from_input.get().upper()
         to_code = to_input.get().upper()
-        result = on_search(from_code, to_code)
+
+        if not from_code or not to_code:
+            output.config(text="Please enter both currencies", fg="red")
+            return
+        
+        try:
+            result = on_search(from_code, to_code)
+        except Exception as e:
+            output.config(text=f"Error: {e}", fg="red")
+            return
+                
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
