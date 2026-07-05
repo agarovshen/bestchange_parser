@@ -33,7 +33,6 @@ def run_app(on_search):
     #Text of list of changers
     text = tk.Text(result_frame)
     text.pack(fill="both")
-
     #List of changers
     def on_click():
         from_code = from_input.get().upper()
@@ -57,5 +56,4 @@ def run_app(on_search):
             text.insert("end", format_changer(r) + "\n")
     
     btn.config(command=on_click)
-
     root.mainloop()
