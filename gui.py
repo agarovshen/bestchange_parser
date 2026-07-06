@@ -5,29 +5,38 @@ def run_app(on_search):
     root = tk.Tk()
     root.geometry("600x700")
     root.title("Arbitrage Bot")
-    top_frame = tk.Frame(root)
+
+    top_frame = tk.Frame(root, bg="yellow")
     top_frame.pack(fill="x", padx=10, pady=10)
 
+
+
     #From currency label
-    tk.Label(top_frame, text="From e.g. BTC: ").pack(anchor="w", padx=5)
-    from_input = tk.Entry(top_frame)
-    from_input.pack(fill="x")
+    first_frame = tk.Frame(top_frame, bg="red")
+    first_frame.pack(side="left")
+    tk.Label(first_frame, text="From e.g. BTC: ").pack(anchor="w", padx=5)
+    from_input = tk.Entry(first_frame, width=20)
+    from_input.pack()
 
     #To currency label
-    tk.Label(top_frame, text=("To e.g. USDT: ")).pack(anchor="w", padx=5)
-    to_input = tk.Entry(top_frame)
-    to_input.pack(fill="x")
+    second_frame = tk.Frame(top_frame, bg="green", padx=10)
+    second_frame.pack(side="left")
+    tk.Label(second_frame, text=("To e.g. USDT: ")).pack(anchor="w", padx=5)
+    to_input = tk.Entry(second_frame, width=20)
+    to_input.pack()
 
     #Output label
-    output = tk.Label(top_frame, text="")
-    output.pack()\
+    third_frame = tk.Frame(top_frame, bg="blue")
+    third_frame.pack(side="left")
+    output = tk.Label(third_frame, text="")
+    output.pack()
     
     #Button
-    btn = tk.Button(top_frame, text="GET RATES")
+    btn = tk.Button(third_frame, text="GET RATES", padx=20)
     btn.pack()
 
     #Bottom Frame
-    result_frame = tk.Frame(root)
+    result_frame = tk.Frame(root, bg="yellow")
     result_frame.pack(fill="both", padx=10, pady=10)
 
     #Text of list of changers
@@ -56,4 +65,16 @@ def run_app(on_search):
             text.insert("end", format_changer(r) + "\n")
     
     btn.config(command=on_click)
+############################################################
+    #Setting menu
+    menu_bar = tk.Menu(root)
+    root.config(menu=menu_bar)
+
+    setting_menu = tk.Menu(menu_bar, tearoff=0)
+    menu_bar.add_cascade(label="Settings", menu=setting_menu)
+    setting_menu.add_command(label="Margin")
+    setting_menu.add_command(label="Sort")
+    setting_menu.add_separator()
+    setting_menu.add_command(label="About")
+
     root.mainloop()
