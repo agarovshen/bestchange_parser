@@ -9,8 +9,6 @@ def run_app(on_search):
     top_frame = tk.Frame(root, bg="yellow")
     top_frame.pack(fill="x", padx=10, pady=10)
 
-
-
     #From currency label
     first_frame = tk.Frame(top_frame, bg="red")
     first_frame.pack(side="left")
@@ -26,14 +24,20 @@ def run_app(on_search):
     to_input.pack()
 
     #Output label
-    third_frame = tk.Frame(top_frame, bg="blue")
+    third_frame = tk.Frame(top_frame, bg="blue", padx=10)
     third_frame.pack(side="left")
     output = tk.Label(third_frame, text="")
     output.pack()
-    
-    #Button
     btn = tk.Button(third_frame, text="GET RATES", padx=20)
     btn.pack()
+
+    #Fourth frame
+    fourth_frame = tk.Frame(top_frame, bg="purple", padx=10)
+    fourth_frame.pack(side="left")
+    use_reverse_spread = tk.BooleanVar()
+    check_reverse_spread = tk.Checkbutton(fourth_frame, text="Calculate reverse spread", variable=use_reverse_spread)
+    check_reverse_spread.pack()
+    
 
     #Bottom Frame
     result_frame = tk.Frame(root, bg="yellow")
