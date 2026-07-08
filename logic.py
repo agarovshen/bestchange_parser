@@ -14,3 +14,11 @@ def analyze_rates(rates, margin=0.05):
             r["tag"] = "" 
         result.append(r)
     return result
+
+# def calculate_reverse_spread(direct_rates, reverse_rates):
+#     if not direct_rates or not reverse_rates:
+#         return None
+#     spreads = []
+
+#     spread = (1 - (direct_rate / reverse_rate)) * 100
+#     return spread

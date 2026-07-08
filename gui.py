@@ -50,13 +50,12 @@ def run_app(on_search):
     def on_click():
         from_code = from_input.get().upper()
         to_code = to_input.get().upper()
-
         if not from_code or not to_code:
             output.config(text="Please enter both currencies", fg="red")
             return
         
         try:
-            result = on_search(from_code, to_code)
+            direct_result, reverse_result = on_search(from_code, to_code, use_reverse_spread=False)
         except Exception as e:
             output.config(text=f"Error: {e}", fg="red")
             return
@@ -64,8 +63,9 @@ def run_app(on_search):
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
-
-        for r in result:
+        print(f"Result: {direct_result}, Type: {type(direct_result)}")
+        for r in direct_result:
+            print(f"Result index: {r}, Type: {type(r)}\n")
             text.insert("end", format_changer(r) + "\n")
     
     btn.config(command=on_click)
