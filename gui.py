@@ -63,9 +63,7 @@ def run_app(on_search):
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
-        print(f"Result: {direct_result}, Type: {type(direct_result)}")
         for r in direct_result:
-            print(f"Result index: {r}, Type: {type(r)}\n")
             text.insert("end", format_changer(r) + "\n")
     
     btn.config(command=on_click)

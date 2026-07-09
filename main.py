@@ -9,9 +9,7 @@ def main():
             to_code, 
             use_reverse_spread=use_reverse_spread)
         direct_rates_result = analyze_rates(direct_rates)[:7]
-        # print(f"Direct rates: {direct_rates_result} Type: {type(direct_rates_result)}")
         reverse_rates_result = []
-        spreads = []
         if use_reverse_spread:
             reverse_rates_result = analyze_rates(reverse_rates)[:7]
         return direct_rates_result, reverse_rates_result

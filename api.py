@@ -25,11 +25,12 @@ def load_rates(from_id, to_id):
     data = response.json()
     rates_dict = data.get("rates", {})
     rates = list(rates_dict.values())[0]
-    # print(rates, type(rates))
     changers_map = get_changers_map(changers)
     for r in rates:
         r["changer_name"] = changers_map[r["changer"]]
+        r["exchange_rate"] = 1/float(r["rate"])
     return rates
+load_rates(93, 1)
 ###################################################
 def get_rates(from_code, to_code, use_reverse_spread=False):
     from_id = get_currency_id(currencies, from_code)
