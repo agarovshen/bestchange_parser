@@ -1,4 +1,6 @@
+# import traceback
 def analyze_rates(rates, margin=0.05):
+    # traceback.print_stack(limit=5)
     sort_rates = sorted(rates, key=lambda x: float(x["exchange_rate"]), reverse=True)
     best_changer = sort_rates[0]
     best_rate = best_changer["rate"]

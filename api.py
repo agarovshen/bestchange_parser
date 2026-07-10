@@ -10,7 +10,14 @@ def get_data(data_type):
 ###################################################
 
 changers = get_data("changers")
+currencies = get_data("currencies")
 
+def get_currency_id(currencies, code):
+    for c in currencies:
+        if c["code"] == code:
+            return c["id"]
+    return None
+#####################################################
 def get_changers_map(changers):
     changers_map = {
         changer["id"] : changer["name"] 
@@ -27,10 +34,13 @@ def load_rates(from_id, to_id):
     rates = list(rates_dict.values())[0]
     changers_map = get_changers_map(changers)
     for r in rates:
+        rate = float(r["rate"])
         r["changer_name"] = changers_map[r["changer"]]
-        r["exchange_rate"] = 1/float(r["rate"])
+        if rate < 0.1:
+            r["exchange_rate"] = 1/rate
+        else:
+            r["exchange_rate"] = rate
     return rates
-load_rates(93, 1)
 ###################################################
 def get_rates(from_code, to_code, use_reverse_spread=False):
     from_id = get_currency_id(currencies, from_code)
@@ -43,11 +53,4 @@ def get_rates(from_code, to_code, use_reverse_spread=False):
     if use_reverse_spread:
         reverse_rates = load_rates(to_id, from_id)
     return direct_rates, reverse_rates
-##################################################
 
-currencies = get_data("currencies")
-def get_currency_id(currencies, code):
-    for c in currencies:
-        if c["code"] == code:
-            return c["id"]
-    return None
