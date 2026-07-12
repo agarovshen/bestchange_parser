@@ -63,6 +63,7 @@ def run_app(on_search):
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
+        text.insert("end", f"{from_code}->{to_code}:\n")
         for r in direct_result:
             text.insert("end", format_changer(r) + "\n")
         if use_reverse_spread.get():
