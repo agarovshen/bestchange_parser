@@ -1,22 +1,16 @@
 from api import get_rates
-from logic import analyze_rates, calculate_reverse_spread
+from logic import calculate_reverse_spread
 from gui import run_app
 
 def main():
-    def handle_search(from_code, to_code, use_reverse_spread=False):
-        direct_rates, reverse_rates = get_rates(
+    def handle_search(from_code, to_code, show_reverse_rates_enabled=False):
+        direct_direction, reverse_direction = get_rates(
             from_code, 
             to_code, 
-            use_reverse_spread=use_reverse_spread)
-        print(f"Use reverse spread: {use_reverse_spread}")
-        direct_rates_result = analyze_rates(direct_rates)[:2]
-        print(f"Main.py Direct rates for {from_code} to {to_code}: {direct_rates_result}")
-        reverse_rates_result = []
-        spreads = []
-        if use_reverse_spread:
-            reverse_rates_result = analyze_rates(reverse_rates)[:2]
-            print(f"Main.py Reverse rates for {to_code} to {from_code}: {reverse_rates_result}")
-            spreads = calculate_reverse_spread(direct_rates_result, reverse_rates_result)
-        return direct_rates_result, reverse_rates_result
+            show_reverse_rates_enabled=show_reverse_rates_enabled)
+        direct_direction.select_best(top=3)
+        if show_reverse_rates_enabled:
+            reverse_direction.select_cheapest(top=3)
+        return direct_direction, reverse_direction
     run_app(handle_search)
 main()

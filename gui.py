@@ -34,9 +34,14 @@ def run_app(on_search):
     #Fourth frame
     fourth_frame = tk.Frame(top_frame, bg="purple", padx=10)
     fourth_frame.pack(side="left")
-    use_reverse_spread = tk.BooleanVar()
-    check_reverse_spread = tk.Checkbutton(fourth_frame, text="Calculate reverse spread", variable=use_reverse_spread)
-    check_reverse_spread.pack()
+    show_reverse_rates_var = tk.BooleanVar()
+    tk.Checkbutton(fourth_frame, 
+                   text="Show reverse rates", 
+                   variable=show_reverse_rates_var).pack()
+    calculate_spreads_var = tk.BooleanVar()
+    tk.Checkbutton(fourth_frame, 
+                   text="Calculate spreads", 
+                   variable=calculate_spreads_var).pack()
     
 
     #Bottom Frame
@@ -53,23 +58,25 @@ def run_app(on_search):
         if not from_code or not to_code:
             output.config(text="Please enter both currencies", fg="red")
             return
-        try:
-            direct_result, reverse_result = on_search(from_code, 
-                                                    to_code, 
-                                                    use_reverse_spread=use_reverse_spread.get())
-        except Exception as e:
-            output.config(text=f"Error: {e}", fg="red")
-            return               
+        direct_direction, reverse_direction = on_search(from_code, to_code, show_reverse_rates_enabled = show_reverse_rates_var.get())
+        # try:
+        #     direct_direction, reverse_direction = on_search(from_code, 
+        #                                             to_code, 
+        #                                             show_reverse_rates_enabled=show_reverse_rates_var.get())
+        # except Exception as e:
+        #     text.delete("1.0", "end")
+        #     text.insert("end", f"Error: {e}")
+        #     return               
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
-        text.insert("end", f"{from_code}->{to_code}:\n")
-        for r in direct_result:
-            text.insert("end", format_changer(r) + "\n")
-        if use_reverse_spread.get():
+        text.insert("end", f"{direct_direction}:\n")
+        for d in direct_direction.selected_rates:
+            text.insert("end", format_changer(d) + "\n")
+        if show_reverse_rates_var.get():
             text.delete("1.0", "end")
-            text.insert("end", "\nReverse Spread:\n")
-            for r in reverse_result:
+            text.insert("end", f"{reverse_direction} \n")
+            for r in reverse_direction.selected_rates:
                 text.insert("end", format_changer(r) + "\n")
     btn.config(command=on_click)
 ############################################################

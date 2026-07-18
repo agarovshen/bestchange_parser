@@ -1,4 +1,5 @@
 import requests
+from models import ExchangeDirection
 from config import API_KEY
 BASE_URL = "https://bestchange.app/v2"
 ###################################################
@@ -42,15 +43,16 @@ def load_rates(from_id, to_id):
             r["exchange_rate"] = rate
     return rates
 ###################################################
-def get_rates(from_code, to_code, use_reverse_spread=False):
+def get_rates(from_code, to_code, show_reverse_rates_enabled=False):
     from_id = get_currency_id(currencies, from_code)
     to_id = get_currency_id(currencies, to_code)
     if not from_id or not to_id:
         print("Currency not found")
         return [], []
     direct_rates = load_rates(from_id, to_id)
-    reverse_rates = []
-    if use_reverse_spread:
+    direct_direction = ExchangeDirection(from_code, to_code, direct_rates)
+    reverse_direction = None
+    if show_reverse_rates_enabled:
         reverse_rates = load_rates(to_id, from_id)
-    return direct_rates, reverse_rates
-
+        reverse_direction = ExchangeDirection(to_code, from_code, reverse_rates)
+    return direct_direction, reverse_direction
