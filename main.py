@@ -1,8 +1,10 @@
 from api import get_rates
 from logic import calculate_reverse_spreads
 from gui import run_app
+from database import create_tables
 
 def main():
+    create_tables()
     def handle_search(from_code, 
                       to_code, 
                       show_reverse_rates_enabled=False, 
