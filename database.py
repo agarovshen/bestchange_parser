@@ -12,16 +12,23 @@ class Database:
         cursor = conn.cursor()
 
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS rates (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    from_code TEXT,
-                    to_code TEXT,
-                    changer_name TEXT,
-                    rate REAL,
-                    exchange_rate REAL,
-                    inmin REAL,
-                    reserve REAL)
-                    """)
+            CREATE TABLE IF NOT EXISTS rates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_code TEXT,
+                to_code TEXT,
+                changer_name TEXT,
+                rate REAL,
+                exchange_rate REAL,
+                inmin REAL,
+                reserve REAL)
+                """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS currencies (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_id INTEGER,
+                name TEXT,
+                code TEXT)
+                """)
         conn.commit()
         conn.close()
     ##########################################
@@ -31,8 +38,8 @@ class Database:
 
         cursor.execute("PRAGMA table_info(rates)")
 
-        for column in cursor.fetchall():
-            print(column)
+        # for column in cursor.fetchall():
+        #     print(column)
         
         conn.commit()
         conn.close()

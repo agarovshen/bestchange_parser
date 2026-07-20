@@ -1,22 +1,30 @@
-# from api import get_rates
+from api import get_data, load_rates
 from logic import calculate_reverse_spreads
 from gui import run_app
+from models import Currencies, ExchangeDirection
 from database import Database
 
 def main():
     db = Database()
     db.create_tables()
-    db.check_table()
+    db.check_table()        
+    currencies_data = get_data("currencies")
+    currencies = Currencies(currencies_data)
     def handle_search(from_code, 
                       to_code, 
                       show_reverse_rates_enabled=False, 
                       calculate_spreads_enabled=False):
         
-        direct_direction = db.load_direction(from_code, to_code)
-        reverse_direction = db.load_direction(to_code, from_code)
+        # direct_direction = db.load_direction(from_code, to_code)
+        # reverse_direction = db.load_direction(to_code, from_code)
+
+        from_currency = currencies.get_by_code(from_code)
+        to_currency = currencies.get_by_code(to_code)
+        direct_rates = load_rates(from_currency.currency_id, to_currency.currency_id)
+        reverse_rates = load_rates(to_currency.currency_id, from_currency.currency_id)
+        direct_direction = ExchangeDirection(from_currency, to_currency, direct_rates)
+        reverse_direction = ExchangeDirection(to_currency, from_currency, reverse_rates)
         # direct_direction, reverse_direction = get_rates(from_code, to_code)
-        # print(f"main.py direct direction -> {direct_direction.rates} \n"
-        #       f"reverse direction --> {reverse_direction.rates}")
         # save_direction(direct_direction)
         # save_direction(reverse_direction)
         # test = load_direction(from_code, to_code)

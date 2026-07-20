@@ -1,7 +1,7 @@
 class ExchangeDirection:
-    def __init__(self, from_code, to_code, rates):
-        self.from_code = from_code
-        self.to_code = to_code
+    def __init__(self, from_currency, to_currency, rates):
+        self.from_code = from_currency.code
+        self.to_code = to_currency.code
         self.rates = rates
         self.use_reverse_spread = False
         self.spreads = []
@@ -19,3 +19,28 @@ class ExchangeDirection:
     ###############################################################
     def __str__(self):
         return f"{self.from_code} -> {self.to_code}"
+    
+class Currency:
+    def __init__(self, name, code, currency_id):
+        self.name = name
+        self.code = code
+        self.currency_id = currency_id
+
+class Currencies:
+    def __init__(self, data):
+        self.currencies = []
+        for d in data:
+            self.currencies.append(Currency(
+                name = d["name"],
+                code = d["code"],
+                currency_id = d["id"]
+            ))
+    def get_by_code(self, code):
+        for currency in self.currencies:
+            if code == currency["code"]:
+                return Currency
+        print("Currency not found")
+        return None
+class Rates:
+    def __init__(self):
+        pass
