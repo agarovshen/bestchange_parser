@@ -43,5 +43,5 @@ class Currencies:
         return None
     
 class Changers:
-    def __init__(self):
+    def __init__(self, data):
         pass
