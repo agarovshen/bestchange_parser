@@ -37,10 +37,11 @@ class Currencies:
             ))
     def get_by_code(self, code):
         for currency in self.currencies:
-            if code == currency["code"]:
-                return Currency
+            if code == currency.code:
+                return currency
         print("Currency not found")
         return None
-class Rates:
+    
+class Changers:
     def __init__(self):
         pass
