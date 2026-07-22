@@ -74,7 +74,7 @@ def run_app(on_search):
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
         text.insert("end", f"{direct_direction}:\n")
-        for d in direct_direction.selected_rates:
+        for d in direct_direction.rates.select_best(top=3):
             text.insert("end", format_changer(d) + "\n")
         if show_reverse_rates_var.get():
             text.delete("1.0", "end")

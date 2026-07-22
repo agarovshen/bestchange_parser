@@ -3,20 +3,8 @@ class ExchangeDirection:
         self.from_code = from_currency.code
         self.to_code = to_currency.code
         self.rates = rates
-        self.use_reverse_spread = False
-        self.spreads = []
-        self.selected_rates = []
     ###############################################################
-    def select_cheapest(self, top=2):      
-        self.rates.sort(key=lambda r: r["exchange_rate"])
-        self.selected_rates = self.rates[:top]
-        return self.selected_rates
-    ###############################################################
-    def select_best(self, top=2):
-        self.rates.sort(key=lambda r: r["exchange_rate"], reverse=True)
-        self.selected_rates = self.rates[:top]
-        return self.rates[:top]
-    ###############################################################
+
     def __str__(self):
         return f"{self.from_code} -> {self.to_code}"
     
@@ -45,3 +33,32 @@ class Currencies:
 class Changers:
     def __init__(self, data):
         pass
+
+class Rate:
+    def __init__(self, data):
+        self.rate = float(data["rate"])
+
+    def normalize_rate(self):
+        if self.rate < 0.01:
+            self.exchange_rate = 1/self.rate
+        else:
+            self.exchange_rate = self.rates
+
+class Rates:
+    def __init__(self, data):
+        self.rates = []
+        for r in data:
+            rate = Rate(r)
+            rate.normalize_rate()
+            self.rates.append(rate)
+        self.selected_rates = []
+    ##############################################################
+    def select_cheapest(self, top=2):      
+        self.rates.sort(key=lambda r: r["rate"])
+        self.selected_rates = self.rates[:top]
+        return self.selected_rates
+    ###############################################################
+    def select_best(self, top=2):
+        self.rates.sort(key=lambda r: r["rate"], reverse=True)
+        self.selected_rates = self.rates[:top]
+        return self.rates[:top]
