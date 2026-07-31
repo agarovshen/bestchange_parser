@@ -13,8 +13,11 @@ class ExchangeServices:
         # Used for direct, reverse and future route calculations.
         from_currency = self.currencies.get_by_code(from_code)
         to_currency = self.currencies.get_by_code(to_code)
-        rates_data = load_rates(from_currency.currency_id, to_currency.currency_id)
+        rates_data = load_rates(from_currency.currency_id, to_currency.currency_id)        
+        for rate in rates_data:
+            rate["changer_name"] = self.changers.changers_map[rate["changer"]]
         rates = Rates(rates_data)
+
         direction = ExchangeDirection(from_currency, to_currency, rates)
         return direction
     ##########################################################################
@@ -29,10 +32,12 @@ class ExchangeServices:
         # Main service method used by GUI.
         # Creates required directions and optional spread calculation.
         direct = self.create_direction(from_code, to_code)
+        direct = direct.with_rates(direct.rates.select_best(top=3))
         reverse = None
         spreads = []
         if show_reverse_rates_enabled or calculate_spreads_enabled:
             reverse = self.create_direction(to_code, from_code)
+            reverse = reverse.with_rates(reverse.rates.select_cheapest(top=3))
         if calculate_spreads_enabled:
             spreads = self.find_spreads(direct, reverse)
         return direct, reverse, spreads

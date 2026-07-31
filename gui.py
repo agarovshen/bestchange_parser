@@ -74,12 +74,11 @@ def run_app(on_search):
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
         text.insert("end", f"{direct_direction}:\n")
-        for d in direct_direction.rates.select_best(top=3):
+        for d in direct_direction.rates:
             text.insert("end", format_changer(d) + "\n")
         if show_reverse_rates_var.get():
-            text.delete("1.0", "end")
             text.insert("end", f"{reverse_direction} \n")
-            for r in reverse_direction.selected_rates:
+            for r in reverse_direction.rates:
                 text.insert("end", format_changer(r) + "\n")
         if calculate_spreads_var.get():
             text.delete("1.0", "end")
