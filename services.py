@@ -23,8 +23,14 @@ class ExchangeServices:
     ##########################################################################
     def find_spreads(self, direct, reverse):
         # Prepare rates and calculate spread between two directions.
-        direct_rates = direct.select_best(top=3)
-        reverse_rates = reverse.select_cheapest(top=3)
+        direct_rates = [
+            rate.rate
+            for rate in direct.rates
+        ]
+        reverse_rates = [
+            rate.rate
+            for rate in reverse.rates
+        ]
         spreads = calculate_spreads(direct_rates,reverse_rates)
         return spreads
     ###########################################################################
@@ -32,7 +38,7 @@ class ExchangeServices:
         # Main service method used by GUI.
         # Creates required directions and optional spread calculation.
         direct = self.create_direction(from_code, to_code)
-        direct = direct.with_rates(direct.rates.select_best(top=3))
+        direct = direct.with_rates(direct.rates.select_cheapest(top=3))
         reverse = None
         spreads = []
         if show_reverse_rates_enabled or calculate_spreads_enabled:

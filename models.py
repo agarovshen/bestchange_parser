@@ -53,7 +53,7 @@ class Rate:
         self.rate = float(data["rate"])
         self.inmin = data["inmin"]
         self.changer_name = data["changer_name"]
-        self.normalize_rate()
+        # self.normalize_rate()
     def normalize_rate(self):
         if self.rate < 0.01:
             self.exchange_rate = 1/self.rate
@@ -67,8 +67,8 @@ class Rates:
             self.rates.append(Rate(r))
     ##############################################################
     def select_cheapest(self, top=2):      
-        return sorted(self.rates, key=lambda r: r.exchange_rate)[:top]
+        return sorted(self.rates, key=lambda r: r.rate)[:top]
     ###############################################################
     def select_best(self, top=2):
-        return sorted(self.rates, key=lambda r: r.exchange_rate, reverse=True)[:top]
+        return sorted(self.rates, key=lambda r: r.rate, reverse=True)[:top]
         

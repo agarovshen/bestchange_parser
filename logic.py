@@ -7,6 +7,6 @@ def calculate_spreads(direct_values, reverse_values):
     for direct_value, reverse_value in zip(direct_values, reverse_values):
         if reverse_value == 0:
             continue
-        spread = ((direct_value / reverse_value) - 1 ) * 100
+        spread = (1 - direct_value * reverse_value) * 100
         spreads.append(spread)
     return spreads
