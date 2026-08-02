@@ -81,7 +81,6 @@ def run_app(on_search):
             for r in reverse_direction.rates:
                 text.insert("end", format_changer(r) + "\n")
         if calculate_spreads_var.get():
-            text.delete("1.0", "end")
             text.insert("end", f"{direct_direction} --> {reverse_direction} \n")
             for s in spreads:
                 text.insert("end", f"Spreads = {s} \n")

@@ -1,126 +1,106 @@
 import sqlite3
-from models import ExchangeDirection
 class Database:
-    def __init__(self, db_name="rates.db"):
-        self.db_name = db_name
-    ##########################################    
-    def get_connection(self):
-        return sqlite3.connect(self.db_name)
-    ##########################################
+    def __init__(self, name="bestchange.db"):
+        self.name = name
+    def connect(self):
+        return sqlite3.connect(self.name)
+    ###########################################
     def create_tables(self):
-        conn = self.get_connection()
+        conn = self.connect()
         cursor = conn.cursor()
-
+        self.create_changers_table(cursor)
+        self.create_currencies_table(cursor)
+        self.create_rates_table(cursor)
+        conn.commit()
+        conn.close()
+    def create_changers_table(self,cursor):
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS rates (
+            CREATE TABLE IF NOT EXISTS changers(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                from_code TEXT,
-                to_code TEXT,
-                changer_name TEXT,
-                rate REAL,
-                exchange_rate REAL,
-                inmin REAL,
-                reserve REAL)
-                """)
+                changer_id INTEGER UNIQUE,
+                name TEXT
+            )""")
+    def create_currencies_table(self,cursor):
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS currencies (
+            CREATE TABLE IF NOT EXISTS currencies(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                currency_id INTEGER,
+                currency_id INTEGER UNIQUE,
                 name TEXT,
-                code TEXT)
-                """)
-        conn.commit()
-        conn.close()
-    ##########################################
-    def check_table(self):
-        conn = self.get_connection()
+                viewname TEXT,
+                code TEXT
+            )""")
+    def save_changers(self, raw_changers):
+        conn = self.connect()
         cursor = conn.cursor()
-
-        cursor.execute("PRAGMA table_info(rates)")
-
-        # for column in cursor.fetchall():
-        #     print(column)
-        
-        conn.commit()
-        conn.close()
-    ##########################################
-    def save_direction(self, direction):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        for rate in direction.rates:
+        for changer in raw_changers:
             cursor.execute("""
-                INSERT INTO rates(
-                        from_code,
-                        to_code,
-                        changer_name,
-                        rate,
-                        exchange_rate,
-                        inmin,
-                        reserve
-                        )
-                        VALUES(?,?,?,?,?,?,?)
-                        """,
-                        (
-                            direction.from_code,
-                            direction.to_code,
-                            rate["changer_name"],
-                            rate["rate"],
-                            rate["exchange_rate"],
-                            rate["inmin"],
-                            rate["reserve"]
-                        ))
-        conn.commit()
-        conn.close()
-    ##########################################
-    def load_direction(self, from_code, to_code):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                    SELECT
-                    changer_name,
-                    rate,
-                    exchange_rate,
-                    inmin,
-                    reserve
-                    FROM rates
-                    WHERE from_code = ?
-                    AND to_code = ?
-                """,
-                (
-                    from_code,
-                    to_code
-                ))
-        rows = cursor.fetchall()
-        conn.close()
-        rates = []
-        for row in rows:
-            rates.append({
-                "changer_name": row[0],
-                "rate": row[1],
-                "exchange_rate": row[2],
-                "inmin": row[3],
-                "reserve": row[4]
-            })
-        return ExchangeDirection(
-            from_code,
-            to_code,
-            rates
-        )
-    ##########################################
-    def delete_direction(self, from_code, to_code):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-                        DELETE FROM rates
-                        WHERE from_code = ?
-                        AND to_code = ?    
+                INSERT OR REPLACE INTO changers(
+                    changer_id,
+                    name)
+                    VALUES(?,?)
                     """,
                     (
-                        from_code,
-                        to_code
+                        changer["id"],
+                        changer["name"]
+                    ))
+        conn.commit()
+        conn.close()
+    def save_currencies(self, currencies_data):
+        conn = self.connect()
+        cursor = conn.cursor()
+        for currency in currencies_data:
+            cursor.execute("""
+                INSERT OR REPLACE INTO currencies(
+                    currency_id,
+                    name,
+                    viewname,
+                    code)
+                    VALUES(?,?,?,?)
+                    """,
+                    (
+                        currency["id"],
+                        currency["name"],
+                        currency["viewname"],
+                        currency["code"]
+                    ))
+        conn.commit()
+        conn.close()
+    def create_rates_table(self,cursor):
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rates(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_currency TEXT,
+                to_currency TEXT,
+                changer_id INTEGER UNIQUE,
+                rate REAL,
+                inmin REAL,
+                inmax REAL
+            )""")
+    def save_rates(self, from_currency, to_currency, rates_data):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM rates
+            WHERE from_currency = ?
+            AND to_currency = ? """, 
+            (from_currency, to_currency))
+        for rate in rates_data:
+            cursor.execute("""
+                INSERT OR REPLACE INTO rates(
+                    from_currency,
+                    to_currency,
+                    changer_id,
+                    rate,
+                    inmin,
+                    inmax)
+                    VALUES(?,?,?,?,?,?)""",
+                    (
+                        from_currency,
+                        to_currency,
+                        rate["changer"],
+                        rate["rate"],
+                        rate["inmin"],
+                        rate["inmax"]
                     ))
         conn.commit()
         conn.close()

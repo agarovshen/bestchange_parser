@@ -3,19 +3,22 @@ from models import ExchangeDirection, Rates
 from logic import calculate_spreads
 
 class ExchangeServices:
-    def __init__(self, changers, currencies):
+    def __init__(self, changers, currencies, repository):
         # Store shared exchange data used to build directions.
         self.changers = changers
         self.currencies = currencies
+        self.repository = repository
     ##########################################################################
     def create_direction(self, from_code, to_code):
         # Create one exchange direction (A -> B) with loaded rates.
         # Used for direct, reverse and future route calculations.
         from_currency = self.currencies.get_by_code(from_code)
         to_currency = self.currencies.get_by_code(to_code)
-        rates_data = load_rates(from_currency.currency_id, to_currency.currency_id)        
-        for rate in rates_data:
-            rate["changer_name"] = self.changers.changers_map[rate["changer"]]
+        rates_data = self.repository.get_rates(from_currency, to_currency)
+        # rates_data = load_rates(from_currency.currency_id, to_currency.currency_id)        
+        # for rate in rates_data:
+        #     rate["changer_name"] = self.changers.changers_map[rate["changer"]]
+        # self.repository.save_rates(from_currency.code, to_currency.code, rates_data)
         rates = Rates(rates_data)
 
         direction = ExchangeDirection(from_currency, to_currency, rates)
