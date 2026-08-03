@@ -59,8 +59,7 @@ def run_app(on_search):
             output.config(text="Please enter both currencies", fg="red")
             return
         direct_direction, reverse_direction, spreads = on_search(from_code, 
-                                                        to_code, 
-                                                        show_reverse_rates_enabled = show_reverse_rates_var.get(),
+                                                        to_code,
                                                         calculate_spreads_enabled = calculate_spreads_var.get())
         # try:
         #     direct_direction, reverse_direction = on_search(from_code, 
@@ -76,10 +75,9 @@ def run_app(on_search):
         text.insert("end", f"{direct_direction}:\n")
         for d in direct_direction.rates:
             text.insert("end", format_changer(d) + "\n")
-        if show_reverse_rates_var.get():
-            text.insert("end", f"{reverse_direction} \n")
-            for r in reverse_direction.rates:
-                text.insert("end", format_changer(r) + "\n")
+        text.insert("end", f"{reverse_direction} \n")
+        for r in reverse_direction.rates:
+            text.insert("end", format_changer(r) + "\n")
         if calculate_spreads_var.get():
             text.insert("end", f"{direct_direction} --> {reverse_direction} \n")
             for s in spreads:

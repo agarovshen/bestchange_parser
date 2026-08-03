@@ -10,3 +10,12 @@ def calculate_spreads(direct_values, reverse_values):
         spread = (1 - direct_value * reverse_value) * 100
         spreads.append(spread)
     return spreads
+#########################################################################
+def generate_pairs_list(currency_ids):
+    pairs_list = []
+    for from_id in currency_ids:
+        for to_id in currency_ids:
+            if from_id != to_id:
+                pairs_list.append(f"{from_id}-{to_id}")
+    return "+".join(pairs_list)
+   

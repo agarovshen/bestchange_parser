@@ -13,6 +13,18 @@ class Database:
         self.create_rates_table(cursor)
         conn.commit()
         conn.close()
+    ##########################################
+    def load_changers(self):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT changer_id, name
+            FROM changers
+            """)
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+    ##################################################
     def create_changers_table(self,cursor):
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS changers(
@@ -20,6 +32,17 @@ class Database:
                 changer_id INTEGER UNIQUE,
                 name TEXT
             )""")
+    #################################################
+    def load_currencies(self):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT currency_id, name, viewname, code
+            FROM currencies """)
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+    ################################################
     def create_currencies_table(self,cursor):
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS currencies(
@@ -29,10 +52,11 @@ class Database:
                 viewname TEXT,
                 code TEXT
             )""")
-    def save_changers(self, raw_changers):
+    ##############################################
+    def save_changers(self, changers_data):
         conn = self.connect()
         cursor = conn.cursor()
-        for changer in raw_changers:
+        for changer in changers_data:
             cursor.execute("""
                 INSERT OR REPLACE INTO changers(
                     changer_id,
@@ -104,3 +128,10 @@ class Database:
                     ))
         conn.commit()
         conn.close()
+        # When loading rates:
+# SELECT
+#     rates.*,
+#     changers.name
+# FROM rates
+# JOIN changers
+# ON rates.changer_id = changers.changer_id;

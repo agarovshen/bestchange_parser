@@ -8,10 +8,18 @@ def get_data(data_type):
     data = response.json()
     return data.get(data_type, [])
 ###################################################
-def load_rates(from_id, to_id):
-    url = f"{BASE_URL}/{API_KEY}/rates/{from_id}-{to_id}"
+def load_rates(paths):
+    url = f"{BASE_URL}/{API_KEY}/rates/{paths}"
     response = requests.get(url)
     data = response.json()
     rates_dict = data.get("rates", {})
     rates = list(rates_dict.values())[0]
     return rates
+####################################################
+# def load_pair_rates(paths):
+#     url = f"{BASE_URL}/{API_KEY}/rates/{paths}"
+#     response = requests.get(url)
+#     data = response.json()
+#     rates_dict = data.get("rates", {})
+#     rates = list(rates_dict.values())
+#     return rates
