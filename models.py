@@ -10,26 +10,26 @@ class ExchangeDirection:
         return f"{self.from_currency.code} -> {self.to_currency.code}"
     
 class Currency:
-    def __init__(self, name, code, currency_id):
-        self.name = name
-        self.code = code
-        self.currency_id = currency_id
-
+    def __init__(self, data):
+        self.currency = data
+        self.name = data["name"]
+        self.code = data["code"]
+        self.currency_id = data["id"]
+    
 class Currencies:
     def __init__(self, data):
-        self.currencies = []
-        for d in data:
-            self.currencies.append(Currency(
-                name = d["name"],
-                code = d["code"],
-                currency_id = d["id"]
-            ))
-    def get_by_code(self, code):
-        for currency in self.currencies:
-            if code == currency.code:
-                return currency
-        print("Currency not found")
-        return None
+        self.currencies = [
+            Currency(currency)
+            for currency in data
+        ]
+        self.id_by_code = {
+            currency.code: currency
+            for currency in self.currencies
+        }
+        self.code_by_id = {
+            currency.currency_id: currency
+            for currency in self.currencies
+        }
     
 class Changer:
     def __init__(self, data):

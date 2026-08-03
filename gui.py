@@ -34,10 +34,10 @@ def run_app(on_search):
     #Fourth frame
     fourth_frame = tk.Frame(top_frame, bg="purple", padx=10)
     fourth_frame.pack(side="left")
-    show_reverse_rates_var = tk.BooleanVar()
+    find_best_spreads_var = tk.BooleanVar()
     tk.Checkbutton(fourth_frame, 
-                   text="Show reverse rates", 
-                   variable=show_reverse_rates_var).pack()
+                   text="Find best spreads", 
+                   variable=find_best_spreads_var).pack()
     calculate_spreads_var = tk.BooleanVar()
     tk.Checkbutton(fourth_frame, 
                    text="Calculate spreads", 
@@ -60,7 +60,8 @@ def run_app(on_search):
             return
         direct_direction, reverse_direction, spreads = on_search(from_code, 
                                                         to_code,
-                                                        calculate_spreads_enabled = calculate_spreads_var.get())
+                                                        calculate_spreads_enabled = calculate_spreads_var.get(),
+                                                        find_best_spreads_var = find_best_spreads_var.get())
         # try:
         #     direct_direction, reverse_direction = on_search(from_code, 
         #                                             to_code, 
