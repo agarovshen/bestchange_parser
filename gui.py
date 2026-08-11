@@ -58,7 +58,7 @@ def run_app(on_search):
         if not from_code or not to_code:
             output.config(text="Please enter both currencies", fg="red")
             return
-        direct_direction, reverse_direction, spreads = on_search(from_code, 
+        directon = on_search(from_code, 
                                                         to_code,
                                                         calculate_spreads_enabled = calculate_spreads_var.get(),
                                                         find_best_spreads_var = find_best_spreads_var.get())
@@ -73,16 +73,16 @@ def run_app(on_search):
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
-        text.insert("end", f"{direct_direction}:\n")
-        for d in direct_direction.rates:
+        text.insert("end", f"{directon}:\n")
+        for d in directon.rates:
             text.insert("end", format_changer(d) + "\n")
-        text.insert("end", f"{reverse_direction} \n")
-        for r in reverse_direction.rates:
-            text.insert("end", format_changer(r) + "\n")
-        if calculate_spreads_var.get():
-            text.insert("end", f"{direct_direction} --> {reverse_direction} \n")
-            for s in spreads:
-                text.insert("end", f"Spreads = {s} \n")
+        # text.insert("end", f"{reverse_direction} \n")
+        # for r in reverse_direction.rates:
+        #     text.insert("end", format_changer(r) + "\n")
+        # if calculate_spreads_var.get():
+        #     text.insert("end", f"{direct_direction} --> {reverse_direction} \n")
+        #     for s in spreads:
+        #         text.insert("end", f"Spreads = {s} \n")
     btn.config(command=on_click)
 ############################################################
     #Setting menu

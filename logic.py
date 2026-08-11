@@ -17,5 +17,5 @@ def generate_pairs_list(currency_ids):
         for to_id in currency_ids:
             if from_id != to_id:
                 pairs_list.append(f"{from_id}-{to_id}")
-    return "+".join(pairs_list)
+    return pairs_list
    

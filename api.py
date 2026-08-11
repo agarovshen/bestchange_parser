@@ -13,8 +13,7 @@ def load_rates(paths):
     response = requests.get(url)
     data = response.json()
     rates_dict = data.get("rates", {})
-    rates = list(rates_dict.values())[0]
-    return rates
+    return rates_dict
 ####################################################
 # def load_pair_rates(paths):
 #     url = f"{BASE_URL}/{API_KEY}/rates/{paths}"
