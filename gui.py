@@ -34,10 +34,10 @@ def run_app(on_search):
     #Fourth frame
     fourth_frame = tk.Frame(top_frame, bg="purple", padx=10)
     fourth_frame.pack(side="left")
-    find_best_spreads_var = tk.BooleanVar()
+    find_all_spreads_var = tk.BooleanVar()
     tk.Checkbutton(fourth_frame, 
-                   text="Find best spreads", 
-                   variable=find_best_spreads_var).pack()
+                   text="Find all spreads", 
+                   variable=find_all_spreads_var).pack()
     calculate_spreads_var = tk.BooleanVar()
     tk.Checkbutton(fourth_frame, 
                    text="Calculate spreads", 
@@ -53,15 +53,19 @@ def run_app(on_search):
     text.pack(fill="both")
     #List of changers
     def on_click():
-        from_code = from_input.get().upper()
-        to_code = to_input.get().upper()
-        if not from_code or not to_code:
-            output.config(text="Please enter both currencies", fg="red")
-            return
-        directon = on_search(from_code, 
+        if find_all_spreads_var.get():
+            from_code = None
+            to_code = None
+        else:
+            from_code = from_input.get().upper()
+            to_code = to_input.get().upper()
+            if not from_code or not to_code:
+                output.config(text="Please enter both currencies", fg="red")
+                return
+        directions = on_search(from_code, 
                                                         to_code,
-                                                        calculate_spreads_enabled = calculate_spreads_var.get(),
-                                                        find_best_spreads_var = find_best_spreads_var.get())
+                                                        # calculate_spreads_enabled = calculate_spreads_var.get(),
+                                                        find_all_spreads = find_all_spreads_var.get())
         # try:
         #     direct_direction, reverse_direction = on_search(from_code, 
         #                                             to_code, 
@@ -69,20 +73,17 @@ def run_app(on_search):
         # except Exception as e:
         #     text.delete("1.0", "end")
         #     text.insert("end", f"Error: {e}")
-        #     return               
+        #     return             
         root.title("Exchange Rates")
         output.config(text=f"Loading {from_code} -> {to_code} ...")
         text.delete("1.0", "end")
-        text.insert("end", f"{directon}:\n")
-        for d in directon.rates:
-            text.insert("end", format_changer(d) + "\n")
-        # text.insert("end", f"{reverse_direction} \n")
-        # for r in reverse_direction.rates:
-        #     text.insert("end", format_changer(r) + "\n")
-        # if calculate_spreads_var.get():
-        #     text.insert("end", f"{direct_direction} --> {reverse_direction} \n")
-        #     for s in spreads:
-        #         text.insert("end", f"Spreads = {s} \n")
+        for direction in directions:
+            text.insert("end", f"{direction["direct"]}:\n")
+            text.insert("end", "\n".join(format_changer(rate) for rate in direction["direct_rates"]) + "\n")
+            text.insert("end", f"{direction["reverse"]}:\n")
+            text.insert("end", "\n".join(format_changer(rate) for rate in direction["reverse_rates"]) + "\n")
+            text.insert("end", f"SPREADS: ")
+            text.insert("end", f"{direction["spread"]}:\n")
     btn.config(command=on_click)
 ############################################################
     #Setting menu

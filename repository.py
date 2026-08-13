@@ -38,6 +38,7 @@ class ExchangeRepository():
     ######################################################
     def get_rates(self, pairs, directions):
         pairs = "+".join(pairs)
+        # print("repository.py pairs ->", pairs, "\n", "directions ->", directions)
         rates_data = self.db.load_rates(directions)
         if not rates_data:
             rates_data = load_rates(pairs)

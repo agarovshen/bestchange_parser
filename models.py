@@ -1,8 +1,9 @@
 class ExchangeDirection:
-    def __init__(self, rates, direction):
+    def __init__(self, rates, direction_data):
         self.rates = rates
-        # self.from_code = self.rates.rate.from_currency_code
-        # self.to_code = self.rates.rate.to_currency_code
+        self.direction_id = direction_data["direction_id"]
+        self.from_code = direction_data["from_currency_code"]
+        self.to_code = direction_data["to_currency_code"]
     ###############################################################
     def with_rates(self, rates):
         return ExchangeDirection(self.from_currency, self.to_currency, rates)
@@ -57,12 +58,12 @@ class Rate:
 
 class Rates:
     def __init__(self, rates):
-        self.rates = []
+        self.rate_objects = []
         for rate in rates:
-            self.rates.append(Rate(rate))
+            self.rate_objects.append(Rate(rate))
     ##############################################################
     def select_cheapest(self, top=2):      
-        return sorted(self.rates, key=lambda r: r.rate)[:top]
+        return sorted(self.rate_objects, key=lambda r: r.rate)[:top]
     ###############################################################
     def select_best(self, top=2):
-        return sorted(self.rates, key=lambda r: r.rate, reverse=True)[:top]
+        return sorted(self.rate_objects, key=lambda r: r.rate, reverse=True)[:top]

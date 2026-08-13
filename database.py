@@ -116,13 +116,13 @@ class Database:
             direction_id = direction["direction_id"]
             cursor.execute("""
                 SELECT 
-                    direction_id, 
+                    rates.direction_id, 
                     changers.name, 
                     from_currency.code, 
                     to_currency.code, 
-                    rate, 
-                    inmin, 
-                    inmax
+                    rates.rate, 
+                    rates.inmin, 
+                    rates.inmax
                 FROM rates
                 JOIN changers
                     ON rates.changer_id = changers.changer_id
