@@ -37,32 +37,46 @@ class ExchangeRepository():
         ]
     ######################################################
     def get_rates(self, pairs, directions):
-        pairs = "+".join(pairs)
-        # print("repository.py pairs ->", pairs, "\n", "directions ->", directions)
+
         rates_data = self.db.load_rates(directions)
         if not rates_data:
-            rates_data = load_rates(pairs)
+            rates_data = {}
+            for i in range(0, len(pairs), 500):
+                print("before batch")
+                batch = pairs[i:i + 500]
+                print("after batch")
+                batch = "+".join(batch)
+                print("after join batch")
+                batches_data = load_rates(batch)
+                print("ready batches data")
+                rates_data.update(batches_data)
+                print("after update rates data")
+            print(type(batches_data))
+            print(type(rates_data), len(rates_data))
             self.db.save_rates(rates_data)
             rates_data = self.db.load_rates(directions)
         return [
             {
                 "direction_id": direction_id,
                 "changer": changer_name,
-                "from_currency_code": from_currency_code,
-                "to_currency_code": to_currency_code,
+                "from_currency_id": from_currency_id,
+                "to_currency_id": to_currency_id,
                 "rate": rate,
                 "inmin": inmin,
                 "inmax": inmax
             }
-            for direction_id, changer_name, from_currency_code, to_currency_code, rate, inmin, inmax in rates_data  
+            for direction_id, changer_name, from_currency_id, to_currency_id, rate, inmin, inmax in rates_data  
         ]
     ##############################################################
     def get_directions(self, pairs):
-        directions_data = self.db.load_directions(pairs)
-        if not directions_data:
-            self.db.save_directions(pairs)
-            directions_data = self.db.load_directions(pairs)
-            
+        result = []
+        for i in range(0, len(pairs), 500):
+            banch = pairs[i:i + 500]
+            directions_data = self.db.load_directions(banch)
+            if not directions_data:
+                self.db.save_directions(banch)
+                directions_data = self.db.load_directions(banch)
+            result.extend(directions_data)
         return [
             {
                 "direction_id": id,
@@ -71,5 +85,5 @@ class ExchangeRepository():
                 "from_currency_code": from_currency_code,
                 "to_currency_code": to_currency_code
             }
-            for id, from_currency_id, to_currency_id, from_currency_code, to_currency_code in directions_data      
+            for id, from_currency_id, to_currency_id, from_currency_code, to_currency_code in result      
         ]

@@ -118,8 +118,8 @@ class Database:
                 SELECT 
                     rates.direction_id, 
                     changers.name, 
-                    from_currency.code, 
-                    to_currency.code, 
+                    from_currency.currency_id, 
+                    to_currency.currency_id, 
                     rates.rate, 
                     rates.inmin, 
                     rates.inmax

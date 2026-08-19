@@ -62,10 +62,8 @@ def run_app(on_search):
             if not from_code or not to_code:
                 output.config(text="Please enter both currencies", fg="red")
                 return
-        directions = on_search(from_code, 
-                                                        to_code,
-                                                        # calculate_spreads_enabled = calculate_spreads_var.get(),
-                                                        find_all_spreads = find_all_spreads_var.get())
+        directions = on_search(from_code, to_code, # calculate_spreads_enabled = calculate_spreads_var.get(),
+                                find_all_spreads = find_all_spreads_var.get())
         # try:
         #     direct_direction, reverse_direction = on_search(from_code, 
         #                                             to_code, 
