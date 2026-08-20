@@ -34,16 +34,17 @@ def run_app(on_search):
     #Fourth frame
     fourth_frame = tk.Frame(top_frame, bg="purple", padx=10)
     fourth_frame.pack(side="left")
-    find_all_spreads_var = tk.BooleanVar()
-    tk.Checkbutton(fourth_frame, 
-                   text="Find all spreads", 
-                   variable=find_all_spreads_var).pack()
-    calculate_spreads_var = tk.BooleanVar()
-    tk.Checkbutton(fourth_frame, 
-                   text="Calculate spreads", 
-                   variable=calculate_spreads_var).pack()
-    
-
+    directions_var = tk.IntVar(value=2)
+    tk.Radiobutton(
+        fourth_frame, 
+        text="Find 2 directions",
+        variable=directions_var,
+        value=2).pack()
+    tk.Radiobutton(
+        fourth_frame,
+        text="Find 3 directions",
+        variable=directions_var,
+        value=3).pack()
     #Bottom Frame
     result_frame = tk.Frame(root, bg="yellow")
     result_frame.pack(fill="both", padx=10, pady=10)
@@ -51,37 +52,19 @@ def run_app(on_search):
     #Text of list of changers
     text = tk.Text(result_frame)
     text.pack(fill="both")
-    #List of changers
+
     def on_click():
-        if find_all_spreads_var.get():
-            from_code = None
-            to_code = None
-        else:
-            from_code = from_input.get().upper()
-            to_code = to_input.get().upper()
-            if not from_code or not to_code:
-                output.config(text="Please enter both currencies", fg="red")
-                return
-        directions = on_search(from_code, to_code, # calculate_spreads_enabled = calculate_spreads_var.get(),
-                                find_all_spreads = find_all_spreads_var.get())
-        # try:
-        #     direct_direction, reverse_direction = on_search(from_code, 
-        #                                             to_code, 
-        #                                             show_reverse_rates_enabled=show_reverse_rates_var.get())
-        # except Exception as e:
-        #     text.delete("1.0", "end")
-        #     text.insert("end", f"Error: {e}")
-        #     return             
-        root.title("Exchange Rates")
-        output.config(text=f"Loading {from_code} -> {to_code} ...")
-        text.delete("1.0", "end")
-        for direction in directions:
-            text.insert("end", f"{direction["direct"]}:\n")
-            text.insert("end", "\n".join(format_changer(rate) for rate in direction["direct_rates"]) + "\n")
-            text.insert("end", f"{direction["reverse"]}:\n")
-            text.insert("end", "\n".join(format_changer(rate) for rate in direction["reverse_rates"]) + "\n")
-            text.insert("end", f"SPREADS: ")
-            text.insert("end", f"{direction["spread"]}:\n")
+        if directions_var.get() == 2:
+            directions = on_search(directions_var=directions_var.get())        
+            root.title("Exchange Rates")
+            text.delete("1.0", "end")
+            for direction in directions:
+                text.insert("end", f"{direction["direct"]}:\n")
+                text.insert("end", "\n".join(format_changer(rate) for rate in direction["direct_rates"]) + "\n")
+                text.insert("end", f"{direction["reverse"]}:\n")
+                text.insert("end", "\n".join(format_changer(rate) for rate in direction["reverse_rates"]) + "\n")
+                text.insert("end", f"SPREADS: ")
+                text.insert("end", f"{direction["spread"]}:\n")
     btn.config(command=on_click)
 ############################################################
     #Setting menu

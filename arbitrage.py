@@ -1,4 +1,4 @@
-from models import Rates, ExchangeDirection
+from models import Rates, ExchangeDirection, ExchangeCycle
 from logic import calculate_spreads, generate_pairs_list
 class ArbitrageScanner:
     def __init__(self, changers, currencies, repository):
@@ -16,32 +16,60 @@ class ArbitrageScanner:
             202,205,82,209,316,286,130,129,186,295,282,323,184,325,310,1
         ]
     ##################################################################
-    def create_directions(self, currency_ids):
-        pairs = generate_pairs_list(currency_ids)
+    def prepare_exchange_data(self):
+        pairs = generate_pairs_list(self.currency_ids)
+        print("arbitrage.py len of pairs before", len(pairs))
         directions_data = self.repository.get_directions(pairs)
         rates_data = self.repository.get_rates(pairs, directions_data)
+        print("arbitrage.py len of rates_data", len(rates_data))
+        rates_by_direction = {}
+        for rate in rates_data:
+            rates_by_direction.setdefault(rate["direction_id"], []).append(rate)
         pairs = {
             (d["from_currency_id"], d["to_currency_id"])
             for d in rates_data
         }
-        rates_by_direction = {}
-        for rate in rates_data:
-            rates_by_direction.setdefault(rate["direction_id"], []).append(rate)
-        
-        valid_directions = [
+        print("arbitrage.py after pairs len", len(pairs))       
+        return pairs, directions_data, rates_by_direction
+    ###################################################################
+    def create_direction(self, pair, rates_by_direction, directions_by_pair):
+        direction = directions_by_pair[pair]
+        direction_id = direction["direction_id"]
+        return ExchangeDirection(rates_by_direction[direction_id], direction)
+    def create_directions(self, pairs, directions_data, rates_by_direction):
+
+        valid_two_directions = [
             d for d in directions_data
             if (d["from_currency_id"], d["to_currency_id"]) in pairs
             and (d["to_currency_id"], d["from_currency_id"]) in pairs
         ]
-        
-        print("length of directions", len(directions_data))
-        print("length of existing rates_by_direction", len(rates_by_direction))
-        print("length of valid directions", len(valid_directions))
         return [
             ExchangeDirection(Rates(rates_by_direction[valid_direction["direction_id"]]), valid_direction)
-            for valid_direction in valid_directions
+            for valid_direction in valid_two_directions
         ]
     ###################################################################
+    def create_cycles(self, pairs, directions_data, rates_by_direction):
+        directions_by_pair = {
+            (d["from_currency_id"], d["to_currency_id"]):d
+            for d in directions_data
+        }
+        print("arbtirage.py len of directions by pair", len(directions_by_pair))
+        valid_three_pairs = [
+            (a,b,c)
+            for a,b in pairs
+            for x,c in pairs
+            if x==b and (c,a) in pairs
+        ]
+        print("arbitrage.py valid three pairs list of pairs", len(valid_three_pairs))
+        return [
+            ExchangeCycle(
+                (self.create_direction((a,b), rates_by_direction, directions_by_pair)),
+                (self.create_direction((b,c), rates_by_direction, directions_by_pair)),
+                (self.create_direction((c,a), rates_by_direction, directions_by_pair))
+            )
+            for a,b,c in valid_three_pairs
+        ]
+    ######################################################################
     def find_spreads(self, direct, reverse):
         # Prepare rates and calculate spread between two directions.
         direct_rates = [
@@ -55,16 +83,8 @@ class ArbitrageScanner:
         spreads = calculate_spreads(direct_rates,reverse_rates)
         return spreads
     ######################################################################
-    def search(self, from_code, to_code, find_all_spreads=False):
-        # Main service method used by GUI.
-        # Creates required directions and optional spread calculation.
-        if find_all_spreads:
-            # direct_directions, reverse_directions = self.create_directions(self.currency_ids_part1)
-            directions = self.create_directions(self.currency_ids)
-            print(len(directions))
-        # else:
-        #     directions = self.create_directions(from_code, to_code)
-        result = []       
+    def scan_for_two_directions(self, directions):
+        result = []
         for i in range(0, len(directions), 2):
             direct_rates = directions[i].rates.select_cheapest(top=1)
             reverse_rates = directions[i+1].rates.select_cheapest(top=1)
@@ -76,6 +96,18 @@ class ArbitrageScanner:
                     "spread": self.find_spreads(direct_rates, reverse_rates)
                 }
             result.append(direction)
-            result.sort(key=lambda direction: direction["spread"][0], reverse=True)
-
-        return result
+        return sorted(result, key=lambda x: x["spread"][0], reverse=True)
+    ######################################################################
+    def scan_for_cycles(self, cycles):
+        pass
+    ######################################################################
+    def search(self,directions_var = 2):
+        pairs, directions_data, rates_by_direction = self.prepare_exchange_data()        
+        if directions_var == 2:
+            result = []
+            directions = self.create_directions(pairs,directions_data,rates_by_direction)       
+            return self.scan_for_two_directions(directions)
+        elif directions_var == 3:
+            result = []
+            cycles = self.create_cycles(pairs, directions_data, rates_by_direction)
+            return result

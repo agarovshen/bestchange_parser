@@ -9,7 +9,9 @@ class ExchangeDirection:
         return ExchangeDirection(self.from_currency, self.to_currency, rates)
     def __str__(self):
         return f"{self.from_code} -> {self.to_code}"
-    
+class ExchangeCycle:
+    def __init__(self, direction):
+        pass  
 class Currency:
     def __init__(self, data):
         self.currency = data
