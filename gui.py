@@ -3,7 +3,7 @@ from formatter import format_changer
 
 def run_app(on_search):
     root = tk.Tk()
-    root.geometry("600x700")
+    root.geometry("800x700")
     root.title("Arbitrage Bot")
 
     top_frame = tk.Frame(root, bg="yellow")
@@ -59,12 +59,28 @@ def run_app(on_search):
             root.title("Exchange Rates")
             text.delete("1.0", "end")
             for direction in directions:
-                text.insert("end", f"{direction["direct"]}:\n")
-                text.insert("end", "\n".join(format_changer(rate) for rate in direction["direct_rates"]) + "\n")
-                text.insert("end", f"{direction["reverse"]}:\n")
-                text.insert("end", "\n".join(format_changer(rate) for rate in direction["reverse_rates"]) + "\n")
-                text.insert("end", f"SPREADS: ")
-                text.insert("end", f"{direction["spread"]}:\n")
+                output = (
+                    f"{direction['direct']}:\n"
+                    f"{'\n'.join(format_changer(rate) for rate in direction['direct_rates'])}\n"
+                    f"{direction['reverse']}:\n"
+                    f"{'\n'.join(format_changer(rate) for rate in direction['reverse_rates'])}\n"
+                    f"SPREADS: {direction['spread']}:\n"
+                )
+                text.insert("end",output)
+        if directions_var.get() == 3:
+            cycles = on_search(directions_var=directions_var.get())
+            print("5 after give cycles in gui")
+            text.delete("1.0", "end")
+            
+            for cycle in cycles:
+                output = (
+                    f"{cycle['direction_ab']} ==> {format_changer(cycle['direction_ab_rates'])}:\n"
+                    f"{cycle['direction_bc']} ==> {format_changer(cycle['direction_bc_rates'])}:\n"
+                    f"{cycle['direction_ca']} ==> {format_changer(cycle['direction_ca_rates'])}:\n"
+                    f"SPREADS: {cycle['spread']}:\n"
+                )
+                text.insert("end", output)
+            print("6 after paint in tkinter in gui.py")
     btn.config(command=on_click)
 ############################################################
     #Setting menu

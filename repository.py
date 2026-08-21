@@ -42,17 +42,10 @@ class ExchangeRepository():
         if not rates_data:
             rates_data = {}
             for i in range(0, len(pairs), 500):
-                print("before batch")
                 batch = pairs[i:i + 500]
-                print("after batch")
                 batch = "+".join(batch)
-                print("after join batch")
                 batches_data = load_rates(batch)
-                print("ready batches data")
                 rates_data.update(batches_data)
-                print("after update rates data")
-            print(type(batches_data))
-            print(type(rates_data), len(rates_data))
             self.db.save_rates(rates_data)
             rates_data = self.db.load_rates(directions)
         return [
