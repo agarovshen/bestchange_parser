@@ -1,5 +1,6 @@
 import tkinter as tk
 from formatter import format_changer
+from settings import ScannerSettings
 
 def run_app(on_search):
     root = tk.Tk()
@@ -52,10 +53,13 @@ def run_app(on_search):
     #Text of list of changers
     text = tk.Text(result_frame)
     text.pack(fill="both")
-
+    settings = ScannerSettings(
+            capital=1000
+        )
     def on_click():
+
         if directions_var.get() == 2:
-            directions = on_search(directions_var=directions_var.get())        
+            directions = on_search(settings=settings, directions_var=directions_var.get())        
             root.title("Exchange Rates")
             text.delete("1.0", "end")
             for direction in directions:
@@ -68,7 +72,7 @@ def run_app(on_search):
                 )
                 text.insert("end",output)
         if directions_var.get() == 3:
-            cycles = on_search(directions_var=directions_var.get())
+            cycles = on_search(settings=settings, directions_var=directions_var.get())
             print("5 after give cycles in gui")
             text.delete("1.0", "end")
             
@@ -89,8 +93,26 @@ def run_app(on_search):
 
     setting_menu = tk.Menu(menu_bar, tearoff=0)
     menu_bar.add_cascade(label="Settings", menu=setting_menu)
-    setting_menu.add_command(label="Margin")
-    setting_menu.add_command(label="Sort")
+    setting_menu.add_command(
+        label="Scanner Settings",
+        command=lambda: open_scanner_settings(settings))
+    def open_scanner_settings(settings):
+        window = tk.Toplevel(root)
+        window.title("Scanner Settings")
+        window.geometry("350x150")
+        tk.Label(window, text="Capital: ").pack()
+        capital_var = tk.StringVar(value=str(settings.capital))
+        tk.Entry(window, textvariable=capital_var).pack()
+        def save():
+            try:
+                capital = float(capital_var.get())
+                if capital <= 0:
+                    raise ValueError
+                settings.capital = capital
+                window.destroy()
+            except ValueError:
+                print("Invalid capital")
+        tk.Button(window, text="Save", command=save).pack()
     setting_menu.add_separator()
     setting_menu.add_command(label="About")
 

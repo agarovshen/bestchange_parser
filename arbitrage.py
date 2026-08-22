@@ -1,5 +1,7 @@
-from models import Rates, ExchangeDirection, ExchangeCycle
-from logic import calculate_spreads, generate_pairs_list, calculate_cycle_spreads
+from models import Rates, ExchangeDirection
+from logic import generate_pairs_list
+from triangle_arbitrage import create_cycles, scan_for_cycles
+from direct_arbitrage import scan_for_two_directions, create_directions
 class ArbitrageScanner:
     def __init__(self, changers, currencies, repository):
         self.changers = changers
@@ -34,98 +36,16 @@ class ArbitrageScanner:
         print("0 after create Rates objects")
         return valid_pairs, directions_data, rates_objects_by_direction
     ##################################################################################
-    def create_direction(self, pair, rates_objects_by_direction, directions_by_pair):
-        direction = directions_by_pair[pair]
-        direction_id = direction["direction_id"]
-        return ExchangeDirection(rates_objects_by_direction[direction_id], direction)
-    ##################################################################################
-    def create_directions(self, pairs, directions_data, rates_objects_by_direction):
-
-        valid_two_directions = [
-            d for d in directions_data
-            if (d["from_currency_id"], d["to_currency_id"]) in pairs
-            and (d["to_currency_id"], d["from_currency_id"]) in pairs
-        ]
-        return [
-            ExchangeDirection(rates_objects_by_direction[valid_direction["direction_id"]], valid_direction)
-            for valid_direction in valid_two_directions
-        ]
-    ##################################################################################
-    def create_cycles(self, valid_pairs, directions_data, rates_objects_by_direction):
-        print("2 arbitrage direction by pair")
-        directions_by_pair = {
-            (d["from_currency_id"], d["to_currency_id"]):d
-            for d in directions_data
-        }
-        valid_three_pairs = [
-            (a,b,c)
-            for a,b in valid_pairs
-            for x,c in valid_pairs
-            if x == b and (c,a) in valid_pairs
-        ]
-        print("3 before return create cycles arbitrage")
-        return [
-            ExchangeCycle(
-                (self.create_direction((a,b), rates_objects_by_direction, directions_by_pair)),
-                (self.create_direction((b,c), rates_objects_by_direction, directions_by_pair)),
-                (self.create_direction((c,a), rates_objects_by_direction, directions_by_pair))
-            )
-            for a,b,c in valid_three_pairs
-        ]
+ 
     ######################################################################
-    def find_spreads(self, direct, reverse):
-        # Prepare rates and calculate spread between two directions.
-        direct_rates = [
-            rate.rate
-            for rate in direct
-        ]
-        reverse_rates = [
-            rate.rate
-            for rate in reverse
-        ]
-        spreads = calculate_spreads(direct_rates,reverse_rates)
-        return spreads
-    ######################################################################
-    def scan_for_two_directions(self, directions):
-        result = []
-        for i in range(0, len(directions), 2):
-            direct_rates = directions[i].rates.select_cheapest(top=1)
-            reverse_rates = directions[i+1].rates.select_cheapest(top=1)
-            direction = {
-                    "direct": directions[i],
-                    "reverse": directions[i+1],
-                    "direct_rates": direct_rates,
-                    "reverse_rates": reverse_rates,
-                    "spread": self.find_spreads(direct_rates, reverse_rates)
-                }
-            result.append(direction)
-        return sorted(result, key=lambda x: x["spread"][0], reverse=True)
-    ######################################################################
-    def scan_for_cycles(self, cycles):
-        result = []
-        for cycle in cycles:
-            direction_ab_rates = cycle.direction_ab.rates.select_cheapest(top=1)[0]
-            direction_bc_rates = cycle.direction_bc.rates.select_cheapest(top=1)[0]
-            direction_ca_rates = cycle.direction_ca.rates.select_cheapest(top=1)[0]
-            result_cycle = {
-                "direction_ab": cycle.direction_ab,
-                "direction_bc": cycle.direction_bc,
-                "direction_ca": cycle.direction_ca,
-                "direction_ab_rates": direction_ab_rates,
-                "direction_bc_rates": direction_bc_rates,
-                "direction_ca_rates": direction_ca_rates,
-                "spread": calculate_cycle_spreads(direction_ab_rates.rate, direction_bc_rates.rate, direction_ca_rates.rate)
-            }
-            result.append(result_cycle)
-        return sorted(result, key=lambda x: x["spread"], reverse=True)
-    ######################################################################
-    def search(self,directions_var = 2):
+    def search(self,settings, directions_var = 2):
+        print("Settings capital in arbitrage.py =", settings.capital)
         pairs, directions_data, rates_objects_by_direction = self.prepare_exchange_data()        
         if directions_var == 2:
-            directions = self.create_directions(pairs, directions_data, rates_objects_by_direction)       
-            return self.scan_for_two_directions(directions)
+            directions = create_directions(pairs, directions_data, rates_objects_by_direction)       
+            return scan_for_two_directions(directions)
         elif directions_var == 3:
             print("1 create cycles arbitrage.py ")
-            cycles = self.create_cycles(pairs, directions_data, rates_objects_by_direction)
+            cycles = create_cycles(pairs, directions_data, rates_objects_by_direction)
             print("4 after create cycles arbitrage.py")
-            return self.scan_for_cycles(cycles)
+            return scan_for_cycles(cycles)
