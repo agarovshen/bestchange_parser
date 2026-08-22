@@ -54,7 +54,8 @@ def run_app(on_search):
     text = tk.Text(result_frame)
     text.pack(fill="both")
     settings = ScannerSettings(
-            capital=1000
+            capital=1000,
+            currency="USDTBEP20"
         )
     def on_click():
 
@@ -103,12 +104,17 @@ def run_app(on_search):
         tk.Label(window, text="Capital: ").pack()
         capital_var = tk.StringVar(value=str(settings.capital))
         tk.Entry(window, textvariable=capital_var).pack()
+        tk.Label(window, text="Currency: ").pack()
+        currency_var = tk.StringVar(value=str(settings.currency))
+        tk.Entry(window, textvariable=currency_var).pack()
         def save():
             try:
                 capital = float(capital_var.get())
+                currency = currency_var.get()
                 if capital <= 0:
                     raise ValueError
                 settings.capital = capital
+                settings.currency = currency
                 window.destroy()
             except ValueError:
                 print("Invalid capital")
