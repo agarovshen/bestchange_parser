@@ -23,7 +23,7 @@ class ArbitrageScanner:
         rates_by_direction = {}
         for rate in rates_data:
             rates_by_direction.setdefault(rate["direction_id"], []).append(rate)
-        pairs = {
+        valid_pairs = {
             (d["from_currency_id"], d["to_currency_id"])
             for d in rates_data
         }
@@ -32,7 +32,7 @@ class ArbitrageScanner:
             for direction_id, rates in rates_by_direction.items()
         } 
         print("0 after create Rates objects")
-        return pairs, directions_data, rates_objects_by_direction
+        return valid_pairs, directions_data, rates_objects_by_direction
     ##################################################################################
     def create_direction(self, pair, rates_objects_by_direction, directions_by_pair):
         direction = directions_by_pair[pair]
@@ -51,7 +51,7 @@ class ArbitrageScanner:
             for valid_direction in valid_two_directions
         ]
     ##################################################################################
-    def create_cycles(self, pairs, directions_data, rates_objects_by_direction):
+    def create_cycles(self, valid_pairs, directions_data, rates_objects_by_direction):
         print("2 arbitrage direction by pair")
         directions_by_pair = {
             (d["from_currency_id"], d["to_currency_id"]):d
@@ -59,9 +59,9 @@ class ArbitrageScanner:
         }
         valid_three_pairs = [
             (a,b,c)
-            for a,b in pairs
-            for x,c in pairs
-            if x==b and (c,a) in pairs
+            for a,b in valid_pairs
+            for x,c in valid_pairs
+            if x == b and (c,a) in valid_pairs
         ]
         print("3 before return create cycles arbitrage")
         return [
