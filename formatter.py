@@ -1,6 +1,9 @@
 def format_changer(r):
-    return(
-        f" Changer: {r.changer}"
-        f" | Rate: {r.rate:.9f}"
-        f" | Inmin: {r.inmin}"
+    if not hasattr(r, 'changer'):
+        return (str(r), "-", "-")
+
+    return (
+        f"{r.changer}",
+        f"{r.rate:.8f}",
+        f"{r.inmin}"
     )
