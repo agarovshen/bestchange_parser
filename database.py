@@ -109,6 +109,7 @@ class Database:
             )""")
     ###################################################
     def load_rates(self, directions):
+        print("Loading rates from db: database.py")
         conn = self.connect()
         cursor = conn.cursor()
         rates = []

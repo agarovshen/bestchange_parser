@@ -2,13 +2,15 @@ class ExchangeDirection:
     def __init__(self, rates, direction_data):
         self.rates = rates
         self.direction_id = direction_data["direction_id"]
-        self.from_code = direction_data["from_currency_code"]
-        self.to_code = direction_data["to_currency_code"]
+        self.from_currency_code = direction_data["from_currency_code"]
+        self.to_currency_code = direction_data["to_currency_code"]
+        self.from_currency_id = direction_data["from_currency_id"]
+        self.to_currency_id = direction_data["to_currency_id"]
     ###############################################################
     def with_rates(self, rates):
         return ExchangeDirection(self.from_currency, self.to_currency, rates)
     def __str__(self):
-        return f"{self.from_code} -> {self.to_code}"
+        return f"{self.from_currency_code} -> {self.to_currency_code}"
 class ExchangeCycle:
     def __init__(self, direction_ab, direction_bc, direction_ca):
         self.direction_ab = direction_ab
@@ -59,6 +61,7 @@ class Rate:
         self.direction_id = rate["direction_id"]
         self.changer = rate["changer"]
         self.inmin = rate["inmin"]
+
 
 class Rates:
     def __init__(self, rates):

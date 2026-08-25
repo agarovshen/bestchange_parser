@@ -28,11 +28,21 @@ def find_spreads(direct, reverse):
     spreads = calculate_spreads(direct_rates,reverse_rates)
     return spreads
 ######################################################################
-def scan_for_two_directions(directions):
+def scan_for_two_directions(directions, settings):
+    capital_rates_by_currencies = {
+        direction.from_currency_id : direction.rates.select_cheapest(top=1)
+        for direction in directions
+        if direction.to_currency_id == settings.currency
+    }
     result = []
     for i in range(0, len(directions), 2):
+        if directions[i+1].from_currency_id  == settings.currency or directions[i].from_currency_id == settings.currency:
+            continue
         direct_rates = directions[i].rates.select_cheapest(top=1)
+        direct_inmin = (capital_rates_by_currencies[directions[i].from_currency_id][0].rate * direct_rates[0].inmin)
         reverse_rates = directions[i+1].rates.select_cheapest(top=1)
+        reverse_inmin = capital_rates_by_currencies[directions[i+1].from_currency_id][0].rate * reverse_rates[0].rate
+        print({capital_rates_by_currencies[directions[i].from_currency_id][0].rate},"=>",{directions[i].from_currency_code}, "=>", {directions[i].to_currency_code}, direct_inmin, reverse_inmin)
         direction = {
                 "direct": directions[i],
                 "reverse": directions[i+1],

@@ -1,11 +1,9 @@
-from models import Rates, Currencies
+from models import Rates, Currencies, Changers
 from logic import generate_pairs_list
 from triangle_arbitrage import create_cycles, scan_for_cycles
 from direct_arbitrage import scan_for_two_directions, create_directions
 class ArbitrageScanner:
     def __init__(self, repository):
-        # self.changers = changers
-        # self.currencies = currencies
         self.repository = repository
         self.currency_ids = [
             93,43,73,172,139,212,106,126,160,99,161,149,115,138,140,36,10,208,180,268,313,314,
@@ -18,36 +16,32 @@ class ArbitrageScanner:
         pairs = generate_pairs_list(self.currency_ids)
         directions_data = self.repository.get_directions(pairs)
         rates_data = self.repository.get_rates(pairs, directions_data)
-        # capital_currency_id = Currencies.id_by_code(settings.currency)
-        # print(capital_currency_id)
-        # capital_rates = []
-        # for rate_data in rates_data:
-
-        #     if rate_data["inmin"] < settings.capital:
-        #         continue
-        #     capital_rates.append(rate_data)
+        currencies = Currencies(self.repository.get_currencies())
+        changers = Changers(self.repository.get_changers())
+        capital_currency_id = currencies.id_by_code[settings.currency].currency_id
+        settings.currency = capital_currency_id
         rates_by_direction = {}
+
         for rate in rates_data:
             rates_by_direction.setdefault(rate["direction_id"], []).append(rate)
-        valid_pairs = {
-            (d["from_currency_id"], d["to_currency_id"])
-            for d in rates_data
-        }
+
+        valid_pairs = {(r["from_currency_id"], r["to_currency_id"]) for r in rates_data}
+
         rates_objects_by_direction = {
             direction_id : Rates(rates)
             for direction_id, rates in rates_by_direction.items()
         } 
-        print("0 after create Rates objects")
-        return valid_pairs, directions_data, rates_objects_by_direction
+
+        return valid_pairs, directions_data, rates_objects_by_direction, settings
  
     ######################################################################
     def search(self, settings, directions_var = 2):
-        pairs, directions_data, rates_objects_by_direction = self.prepare_exchange_data(settings)        
+        pairs, directions_data, rates_objects_by_direction, settings = self.prepare_exchange_data(settings) 
+
         if directions_var == 2:
             directions = create_directions(pairs, directions_data, rates_objects_by_direction)       
-            return scan_for_two_directions(directions)
+            return scan_for_two_directions(directions, settings)
+        
         elif directions_var == 3:
-            print("1 create cycles arbitrage.py ")
             cycles = create_cycles(pairs, directions_data, rates_objects_by_direction)
-            print("4 after create cycles arbitrage.py")
             return scan_for_cycles(cycles)

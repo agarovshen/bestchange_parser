@@ -1,12 +1,9 @@
 from gui import run_app
-from repository import ExchangeRepository
-from arbitrage import ArbitrageScanner
+from services import build_arbitrage_scanner
 
-def build_service():
-    repository = ExchangeRepository()
-    return ArbitrageScanner(repository)
+
 
 def main():
-    arbitrage = build_service()
+    arbitrage = build_arbitrage_scanner()
     run_app(arbitrage.search)
 main()
