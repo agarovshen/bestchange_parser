@@ -1,4 +1,4 @@
-from api import get_data, load_rates
+from bestchange_api import fetch_data, fetch_rates
 from database import Database
 
 class ExchangeRepository():
@@ -10,7 +10,7 @@ class ExchangeRepository():
         changers_data = self.db.load_changers()
         if not changers_data:
             print("changers loading from api: repository.py")
-            changers_data = get_data("changers")
+            changers_data = fetch_data("changers")
             self.db.save_changers(changers_data)
             changers_data = self.db.load_changers()
         return [
@@ -24,7 +24,7 @@ class ExchangeRepository():
     def get_currencies(self):
         currencies_data = self.db.load_currencies()
         if not currencies_data:
-            currencies_data = get_data("currencies")
+            currencies_data = fetch_data("currencies")
             self.db.save_currencies(currencies_data)
             currencies_data = self.db.load_currencies()
         return [
@@ -45,7 +45,7 @@ class ExchangeRepository():
             for i in range(0, len(pairs), 500):
                 batch = pairs[i:i + 500]
                 batch = "+".join(batch)
-                batches_data = load_rates(batch)
+                batches_data = fetch_rates(batch)
                 rates_data.update(batches_data)
             self.db.save_rates(rates_data)
             rates_data = self.db.load_rates(directions)

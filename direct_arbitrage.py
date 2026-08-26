@@ -29,6 +29,7 @@ def find_spreads(direct, reverse):
     return spreads
 ######################################################################
 def scan_for_two_directions(directions, settings):
+    print("5. Start scan two directions")
     capital_rates_by_currencies = {
         direction.from_currency_id : direction.rates.select_cheapest(top=1)
         for direction in directions
@@ -39,17 +40,19 @@ def scan_for_two_directions(directions, settings):
         if directions[i+1].from_currency_id  == settings.currency or directions[i].from_currency_id == settings.currency:
             continue
         direct_rates = directions[i].rates.select_cheapest(top=1)
-        direct_inmin = (capital_rates_by_currencies[directions[i].from_currency_id][0].rate * direct_rates[0].inmin)
+        #direct_inmin = (capital_rates_by_currencies[directions[i].from_currency_id][0].rate * direct_rates[0].inmin)
         reverse_rates = directions[i+1].rates.select_cheapest(top=1)
-        reverse_inmin = capital_rates_by_currencies[directions[i+1].from_currency_id][0].rate * reverse_rates[0].rate
-        print({capital_rates_by_currencies[directions[i].from_currency_id][0].rate},"=>",{directions[i].from_currency_code}, "=>", {directions[i].to_currency_code}, direct_inmin, reverse_inmin)
+        #reverse_inmin = capital_rates_by_currencies[directions[i+1].from_currency_id][0].rate * reverse_rates[0].rate
+        #print({capital_rates_by_currencies[directions[i].from_currency_id][0].rate},"=>",{directions[i].from_currency_code}, "=>", {directions[i].to_currency_code}, direct_inmin, reverse_inmin)
         direction = {
-                "direct": directions[i],
-                "reverse": directions[i+1],
+                "direct": str(directions[i]),
+                "reverse": str(directions[i+1]),
                 "direct_rates": direct_rates,
                 "reverse_rates": reverse_rates,
                 "spread": find_spreads(direct_rates, reverse_rates),
                 "profit": "future soon"
             }
         result.append(direction)
+    
+    print("6. ready scan two directions length of result", len(result))
     return sorted(result, key=lambda x: x["spread"][0], reverse=True)

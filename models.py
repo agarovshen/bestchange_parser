@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from typing import Optional
 class ExchangeDirection:
     def __init__(self, rates, direction_data):
         self.rates = rates
@@ -7,8 +9,6 @@ class ExchangeDirection:
         self.from_currency_id = direction_data["from_currency_id"]
         self.to_currency_id = direction_data["to_currency_id"]
     ###############################################################
-    def with_rates(self, rates):
-        return ExchangeDirection(self.from_currency, self.to_currency, rates)
     def __str__(self):
         return f"{self.from_currency_code} -> {self.to_currency_code}"
 class ExchangeCycle:
@@ -54,23 +54,37 @@ class Changers:
             changer.changer_id: changer.name
             for changer in self.changers
         }
-    
+@dataclass(slots=True)    
 class Rate:
-    def __init__(self, rate):
-        self.rate = float(rate["rate"])
-        self.direction_id = rate["direction_id"]
-        self.changer = rate["changer"]
-        self.inmin = rate["inmin"]
-
+    rate: float
+    direction_id: int
+    changer: str
+    inmin: float
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> "Rate":
+        return cls(
+            rate = float(data["rate"]),
+            direction_id = int(data["direction_id"]),
+            changer = str(data["changer"]),
+            inmin = float(data["inmin"])
+        )
 
 class Rates:
-    def __init__(self, rates):
-        self.rate_objects = []
-        for rate in rates:
-            self.rate_objects.append(Rate(rate))
+    def __init__(self, rates: list[dict]):
+        self.rate_objects = [Rate.from_dict(r) for r in rates]
     ##############################################################
     def select_cheapest(self, top=2):      
         return sorted(self.rate_objects, key=lambda r: r.rate)[:top]
     ###############################################################
     def select_best(self, top=2):
         return sorted(self.rate_objects, key=lambda r: r.rate, reverse=True)[:top]
+    
+@dataclass(slots=True)
+class ArbitragePair:
+    direct_name: str
+    reverse_name: str
+    best_direct_rate: Optional[Rate]
+    best_reverse_rate: Optional[Rate]
+    spread: float
+    profit_estimate: str="Future soon"

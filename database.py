@@ -110,33 +110,34 @@ class Database:
     ###################################################
     def load_rates(self, directions):
         print("Loading rates from db: database.py")
+        if not directions:
+            return []
+        direction_ids = [d["direction_id"] for d in directions]
         conn = self.connect()
         cursor = conn.cursor()
         rates = []
-        for direction in directions:
-            direction_id = direction["direction_id"]
-            cursor.execute("""
-                SELECT 
-                    rates.direction_id, 
-                    changers.name, 
-                    from_currency.currency_id, 
-                    to_currency.currency_id, 
-                    rates.rate, 
-                    rates.inmin, 
-                    rates.inmax
-                FROM rates
-                JOIN changers
-                    ON rates.changer_id = changers.changer_id
-                JOIN directions
-                    ON rates.direction_id = directions.id
-                JOIN currencies AS from_currency
-                    ON directions.from_currency_id = from_currency.currency_id
-                JOIN currencies as to_currency
-                    ON directions.to_currency_id = to_currency.currency_id
-                WHERE direction_id = ? """,
-                (direction_id,))
-            rows = cursor.fetchall()
-            rates.extend(rows)
+
+        cursor.execute(f"""
+            SELECT 
+                rates.direction_id, 
+                changers.name, 
+                from_currency.currency_id, 
+                to_currency.currency_id, 
+                rates.rate, 
+                rates.inmin, 
+                rates.inmax
+            FROM rates
+            JOIN changers
+                ON rates.changer_id = changers.changer_id
+            JOIN directions
+                ON rates.direction_id = directions.id
+            JOIN currencies AS from_currency
+                ON directions.from_currency_id = from_currency.currency_id
+            JOIN currencies as to_currency
+                ON directions.to_currency_id = to_currency.currency_id
+            WHERE rates.direction_id IN ({','.join(['?'] * len(direction_ids))})
+        """, direction_ids)
+        rates = cursor.fetchall()
         conn.close()
         return rates
     ###################################################
@@ -187,7 +188,7 @@ class Database:
                 to_currency_id INTEGER,
                 UNIQUE(from_currency_id, to_currency_id),
                 FOREIGN KEY(from_currency_id)
-                    REFERENCES curencies(id),
+                    REFERENCES currencies(id),
                 FOREIGN KEY(to_currency_id)
                     REFERENCES currencies(id)
                 )

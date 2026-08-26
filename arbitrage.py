@@ -14,10 +14,12 @@ class ArbitrageScanner:
     ##################################################################
     def prepare_exchange_data(self, settings):
         pairs = generate_pairs_list(self.currency_ids)
-        directions_data = self.repository.get_directions(pairs)
-        rates_data = self.repository.get_rates(pairs, directions_data)
-        currencies = Currencies(self.repository.get_currencies())
+        directions_data = self.repository.get_directions(pairs) 
         changers = Changers(self.repository.get_changers())
+        rates_data = self.repository.get_rates(pairs, directions_data)
+       
+        currencies = Currencies(self.repository.get_currencies())
+        
         capital_currency_id = currencies.id_by_code[settings.currency].currency_id
         settings.currency = capital_currency_id
         rates_by_direction = {}
@@ -31,15 +33,18 @@ class ArbitrageScanner:
             direction_id : Rates(rates)
             for direction_id, rates in rates_by_direction.items()
         } 
-
+        print("2. Ready prepare exchange data in arbitrage")
         return valid_pairs, directions_data, rates_objects_by_direction, settings
  
     ######################################################################
     def search(self, settings, directions_var = 2):
+        print("1. search func prepare exchange in arbitrage")
         pairs, directions_data, rates_objects_by_direction, settings = self.prepare_exchange_data(settings) 
 
         if directions_var == 2:
-            directions = create_directions(pairs, directions_data, rates_objects_by_direction)       
+            print("3. start create directions")
+            directions = create_directions(pairs, directions_data, rates_objects_by_direction)
+            print("4. end create directions")       
             return scan_for_two_directions(directions, settings)
         
         elif directions_var == 3:
