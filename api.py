@@ -8,8 +8,8 @@ from services import build_arbitrage_scanner
 app = FastAPI(title="Arbitrage Scanner")
 
 class ScanRequest(BaseModel):
-    capital: float
-    currency: str
+    capital: float=600
+    currency: str="USDTBEP20"
 print("-3. Before build arbitrage scanner")
 arbitrage = build_arbitrage_scanner()
 print("-2. . After build arbitrage scanner")
@@ -23,6 +23,9 @@ def scan(request: ScanRequest):
     )
     print("0. Before arbitrage search in api")
     result =  arbitrage.search(settings)
-    print("7. Search returned")
-    return result
+    print("7. length of result", len(result))
+    return {
+        "count": len(result),
+        "results": result
+        }
 ###################################################

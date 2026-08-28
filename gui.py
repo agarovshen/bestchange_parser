@@ -1,5 +1,6 @@
 import tkinter as tk
 from formatter import format_changer
+from api_client import scan_arbitrage
 from settings import ScannerSettings
 
 
@@ -32,7 +33,7 @@ def open_scanner_settings(settings, root):
     tk.Button(win, text="Save", command=save).pack(pady=2)
 
 
-def run_app(on_search):
+def run_app():
     root = tk.Tk()
     root.title("Scanner")
     root.geometry("600x400")
@@ -54,7 +55,7 @@ def run_app(on_search):
     def search():
         txt.delete("1.0", "end")
         cnt = dirs_var.get()
-        results = on_search(settings=settings, directions_var=cnt)
+        results = scan_arbitrage(settings=settings, directions_var=cnt)
         for item in results:
             
             txt.insert("end", f"--- LOOP (Spread: {item['spread']}) ---\n")
