@@ -12,7 +12,7 @@ class ScanRequest(BaseModel):
     currency: str="USDTBEP20"
 print("-3. Before build arbitrage scanner")
 arbitrage = build_arbitrage_scanner()
-print("-2. . After build arbitrage scanner")
+print("-2. . After build arbitrage scanner", arbitrage)
 @app.post("/arbitrage/scan")
 
 def scan(request: ScanRequest):

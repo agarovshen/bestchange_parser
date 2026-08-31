@@ -56,22 +56,22 @@ def run_app():
         txt.delete("1.0", "end")
         cnt = dirs_var.get()
         results = scan_arbitrage(settings=settings, directions_var=cnt)
+        print("3. results in gui")
         for item in results:
             
             txt.insert("end", f"--- LOOP (Spread: {item['spread']}) ---\n")
 
             if cnt == 2:
-                # 2D пары (Direct / Reverse)
-                txt.insert("end", f"> Direct: {item['direct']}\n")
-                for r in item.get("direct_rates", []):
-                    ex, rate, lim = format_changer(r)
-                    txt.insert("end", f"   Ex: {ex} | Rate: {rate} | Min: {lim}\n")
-
-                txt.insert("end", f"> Reverse: {item['reverse']}\n")
-                for r in item.get("reverse_rates", []):
-                    ex, rate, lim = format_changer(r)
-                    txt.insert("end", f"   Ex: {ex} | Rate: {rate} | Min: {lim}\n")
-
+                for name, direction_name, rate in (
+                    ("Direct", item.get("direct_name", {}), item.get("best_direct_rate", {})),
+                    ("Reverse", item.get("reverse_name", {}), item.get("best_reverse_rate", {}))
+                ):
+                    ex, best_rate, lim = format_changer(rate)
+                    txt.insert(
+                        "end",                         
+                        f"> {name}: {direction_name}\n"
+                        f"   Ex: {ex} | Rate: {best_rate} | Min: {lim}\n"
+                    )
             elif cnt == 3:
                 # 3D треугольники (AB / BC / CA)
                 txt.insert("end", f"> AB: {item['direction_ab']}\n")

@@ -14,8 +14,9 @@ class ArbitrageScanner:
     ##################################################################
     def prepare_exchange_data(self, settings):
         pairs = generate_pairs_list(self.currency_ids)
-        directions_data = self.repository.get_directions(pairs) 
-        changers = Changers(self.repository.get_changers())
+        print("1.1 generating pairs list in arbitrage.py")
+        directions_data = self.repository.get_directions(pairs)
+        print("1.3 end creations directions data in arbitrage.py") 
         rates_data = self.repository.get_rates(pairs, directions_data)
        
         currencies = Currencies(self.repository.get_currencies())

@@ -7,6 +7,7 @@ class ExchangeRepository():
         self.db.create_tables()
     ##################################################
     def get_changers(self):
+        print("i am here in changers in repository")
         changers_data = self.db.load_changers()
         if not changers_data:
             print("changers loading from api: repository.py")
@@ -38,6 +39,7 @@ class ExchangeRepository():
         ]
     ######################################################
     def get_rates(self, pairs, directions):
+        print("1.4 starting load rates in repository.py")
         rates_data = self.db.load_rates(directions)
         if not rates_data:
             print("Loading from api: repository.py not rates in db")
@@ -63,6 +65,7 @@ class ExchangeRepository():
         ]
     ##############################################################
     def get_directions(self, pairs):
+        print("1.2 starting get directions in repository.py")
         result = []
         for i in range(0, len(pairs), 500):
             banch = pairs[i:i + 500]

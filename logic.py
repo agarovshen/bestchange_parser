@@ -1,14 +1,8 @@
 from math import prod
-def calculate_spreads(direct_values, reverse_values):
-    if not direct_values or not reverse_values:
-        return []
-    if len(direct_values) != len(reverse_values):
-        raise ValueError("Direct and reverse length must be equal")
-    return [
-        round((1-direct * reverse) * 100, 2)
-        for direct, reverse in zip(direct_values, reverse_values)
-        if reverse != 0
-    ]
+def calculate_spread(direct_value, reverse_value):
+    if not direct_value or not reverse_value:
+        return None
+    return round((1-direct_value * reverse_value) * 100, 2)
 #########################################################################
 def calculate_cycle_spreads(*rates):
     cycle_rate = prod(rates)
