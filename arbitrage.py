@@ -1,52 +1,49 @@
 from models import Rates, Currencies, Changers
 from logic import generate_pairs_list
 from triangle_arbitrage import create_cycles, scan_for_cycles
-from direct_arbitrage import scan_for_two_directions, create_directions
+from direct_arbitrage import scan_for_two_directions
 class ArbitrageScanner:
     def __init__(self, repository):
         self.repository = repository
+        self.currencies = Currencies(repository.currencies)
+        self.changers = Changers(repository.changers)
         self.currency_ids = [
             93,43,73,172,139,212,106,126,160,99,161,149,115,138,140,36,10,208,180,268,313,314,
             315,169,163,256,306,23,110,235,228,269,47,257,214,24,267,189,203,206,143,87,173,162,
             177,178,179,181,182,185,133,48,124,168,16,19,104,134,27,61,135,26,197,198,175,201,
             202,205,82,209,316,286,130,129,186,295,282,323,184,325,310
         ]#1
+        self.pairs = generate_pairs_list(self.currency_ids)
     ##################################################################
-    def prepare_exchange_data(self, settings):
-        pairs = generate_pairs_list(self.currency_ids)
-        print("1.1 generating pairs list in arbitrage.py")
-        directions_data = self.repository.get_directions(pairs)
-        print("1.3 end creations directions data in arbitrage.py") 
-        rates_data = self.repository.get_rates(pairs, directions_data)
-       
-        currencies = Currencies(self.repository.get_currencies())
-        
-        capital_currency_id = currencies.id_by_code[settings.currency].currency_id
-        settings.currency = capital_currency_id
+    def prepare_exchange_data(self):
+        rates_data = self.repository.get_rates(self.pairs)
+
         rates_by_direction = {}
 
         for rate in rates_data:
-            rates_by_direction.setdefault(rate["direction_id"], []).append(rate)
+            from_id = rate["from_currency_id"]
+            to_id = rate["to_currency_id"]
+            rate["changer"] = self.changers.changers_map[rate["changer_id"]]
+            rate["from_currency"] = self.currencies.currencies_map[rate["from_currency_id"]]
+            rate["to_currency"] = self.currencies.currencies_map[rate["to_currency_id"]]
+            del rate["changer_id"]
+            del rate["from_currency_id"]
+            del rate["to_currency_id"]
+            rates_by_direction.setdefault((from_id, to_id), []).append(rate)
 
-        valid_pairs = {(r["from_currency_id"], r["to_currency_id"]) for r in rates_data}
-
-        rates_objects_by_direction = {
-            direction_id : Rates(rates)
-            for direction_id, rates in rates_by_direction.items()
-        } 
-        print("2. Ready prepare exchange data in arbitrage")
-        return valid_pairs, directions_data, rates_objects_by_direction, settings
+        valid_rates = {
+            pair: Rates(rates) 
+            for pair, rates in rates_by_direction.items() 
+            if (pair[1], pair[0]) in rates_by_direction 
+        }
+        return valid_rates
  
     ######################################################################
     def search(self, settings, directions_var = 2):
-        print("1. search func prepare exchange in arbitrage")
-        pairs, directions_data, rates_objects_by_direction, settings = self.prepare_exchange_data(settings) 
+        valid_rates = self.prepare_exchange_data() 
 
         if directions_var == 2:
-            print("3. start create directions")
-            directions = create_directions(pairs, directions_data, rates_objects_by_direction)
-            print("4. end create directions")       
-            return scan_for_two_directions(directions, settings)
+            return scan_for_two_directions(valid_rates)
         
         elif directions_var == 3:
             cycles = create_cycles(pairs, directions_data, rates_objects_by_direction)

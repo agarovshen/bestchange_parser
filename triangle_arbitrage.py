@@ -1,4 +1,4 @@
-from models import ExchangeCycle, ExchangeDirection
+from models import ExchangeCycle
 from logic import calculate_cycle_spreads
 def create_direction(pair, rates_objects_by_direction, directions_by_pair):
     direction = directions_by_pair[pair]

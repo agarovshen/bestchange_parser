@@ -1,16 +1,5 @@
 from dataclasses import dataclass
 from typing import Optional
-class ExchangeDirection:
-    def __init__(self, rates, direction_data):
-        self.rates = rates
-        self.direction_id = direction_data["direction_id"]
-        self.from_currency_code = direction_data["from_currency_code"]
-        self.to_currency_code = direction_data["to_currency_code"]
-        self.from_currency_id = direction_data["from_currency_id"]
-        self.to_currency_id = direction_data["to_currency_id"]
-    ###############################################################
-    def __str__(self):
-        return f"{self.from_currency_code} -> {self.to_currency_code}"
 class ExchangeCycle:
     def __init__(self, direction_ab, direction_bc, direction_ca):
         self.direction_ab = direction_ab
@@ -29,11 +18,7 @@ class Currencies:
             Currency(currency)
             for currency in data
         ]
-        self.id_by_code = {
-            currency.code: currency
-            for currency in self.currencies
-        }
-        self.code_by_id = {
+        self.currencies_map = {
             currency.currency_id: currency
             for currency in self.currencies
         }
@@ -51,22 +36,24 @@ class Changers:
             for changer in data
         ]
         self.changers_map = {
-            changer.changer_id: changer.name
+            changer.changer_id: changer
             for changer in self.changers
         }
 @dataclass(slots=True)    
 class Rate:
     rate: float
-    direction_id: int
-    changer: str
+    from_currency: Currency
+    to_currency: Currency
+    changer: Changer
     inmin: float
     
     @classmethod
     def from_dict(cls, data: dict) -> "Rate":
         return cls(
             rate = float(data["rate"]),
-            direction_id = int(data["direction_id"]),
-            changer = str(data["changer"]),
+            from_currency = data["from_currency"],
+            to_currency = data["to_currency"],
+            changer = data["changer"],
             inmin = float(data["inmin"])
         )
 
@@ -84,7 +71,8 @@ class Rates:
 class ArbitragePair:
     direct_name: str
     reverse_name: str
-    best_direct_rate: Optional[Rate]
-    best_reverse_rate: Optional[Rate]
+    changer: str
+    best_direct_rate: float
+    best_reverse_rate: float
     spread: float
     profit_estimate: str="Future soon"

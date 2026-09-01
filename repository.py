@@ -5,6 +5,8 @@ class ExchangeRepository():
     def __init__(self):
         self.db = Database()
         self.db.create_tables()
+        self.currencies = self.get_currencies()
+        self.changers = self.get_changers()
     ##################################################
     def get_changers(self):
         print("i am here in changers in repository")
@@ -38,9 +40,9 @@ class ExchangeRepository():
             for currency_id, name, viewname, code in currencies_data
         ]
     ######################################################
-    def get_rates(self, pairs, directions):
+    def get_rates(self, pairs):
         print("1.4 starting load rates in repository.py")
-        rates_data = self.db.load_rates(directions)
+        rates_data = self.db.load_rates(pairs)
         if not rates_data:
             print("Loading from api: repository.py not rates in db")
             rates_data = {}
@@ -50,37 +52,15 @@ class ExchangeRepository():
                 batches_data = fetch_rates(batch)
                 rates_data.update(batches_data)
             self.db.save_rates(rates_data)
-            rates_data = self.db.load_rates(directions)
+            rates_data = self.db.load_rates(pairs)
         return [
             {
-                "direction_id": direction_id,
-                "changer": changer_name,
                 "from_currency_id": from_currency_id,
                 "to_currency_id": to_currency_id,
+                "changer_id": changer_id,
                 "rate": rate,
                 "inmin": inmin,
                 "inmax": inmax
             }
-            for direction_id, changer_name, from_currency_id, to_currency_id, rate, inmin, inmax in rates_data  
-        ]
-    ##############################################################
-    def get_directions(self, pairs):
-        print("1.2 starting get directions in repository.py")
-        result = []
-        for i in range(0, len(pairs), 500):
-            banch = pairs[i:i + 500]
-            directions_data = self.db.load_directions(banch)
-            if not directions_data:
-                self.db.save_directions(banch)
-                directions_data = self.db.load_directions(banch)
-            result.extend(directions_data)
-        return [
-            {
-                "direction_id": id,
-                "from_currency_id": from_currency_id,
-                "to_currency_id": to_currency_id,
-                "from_currency_code": from_currency_code,
-                "to_currency_code": to_currency_code
-            }
-            for id, from_currency_id, to_currency_id, from_currency_code, to_currency_code in result      
+            for from_currency_id, to_currency_id, changer_id, rate, inmin, inmax in rates_data  
         ]
