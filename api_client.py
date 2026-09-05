@@ -10,8 +10,6 @@ def scan_arbitrage(settings, directions_var = 2):
         "currency": settings.currency
     }
     response = requests.post(url, json=payload)
-    print("1. response: ", response)
     response.raise_for_status()
     data = response.json()
-    print("2. ready data in api_client.py: ")
     return data.get("results", [])

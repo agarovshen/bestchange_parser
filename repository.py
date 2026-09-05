@@ -9,10 +9,8 @@ class ExchangeRepository():
         self.changers = self.get_changers()
     ##################################################
     def get_changers(self):
-        print("i am here in changers in repository")
         changers_data = self.db.load_changers()
         if not changers_data:
-            print("changers loading from api: repository.py")
             changers_data = fetch_data("changers")
             self.db.save_changers(changers_data)
             changers_data = self.db.load_changers()
@@ -41,10 +39,8 @@ class ExchangeRepository():
         ]
     ######################################################
     def get_rates(self, pairs):
-        print("1.4 starting load rates in repository.py")
         rates_data = self.db.load_rates(pairs)
         if not rates_data:
-            print("Loading from api: repository.py not rates in db")
             rates_data = {}
             for i in range(0, len(pairs), 500):
                 batch = pairs[i:i + 500]

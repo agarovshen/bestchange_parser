@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from locale import currency
 from typing import Optional
 class ExchangeCycle:
     def __init__(self, direction_ab, direction_bc, direction_ca):
@@ -18,11 +19,14 @@ class Currencies:
             Currency(currency)
             for currency in data
         ]
-        self.currencies_map = {
+        self.currency_by_id = {
             currency.currency_id: currency
             for currency in self.currencies
         }
-    
+        self.currency_by_code = {
+            currency.code: currency
+            for currency in self.currencies
+        }
 class Changer:
     def __init__(self, data):
         self.changer = data
@@ -39,6 +43,7 @@ class Changers:
             changer.changer_id: changer
             for changer in self.changers
         }
+
 @dataclass(slots=True)    
 class Rate:
     rate: float
@@ -61,18 +66,32 @@ class Rates:
     def __init__(self, rates: list[dict]):
         self.rate_objects = [Rate.from_dict(r) for r in rates]
     ##############################################################
-    def select_cheapest(self, top=2):      
-        return sorted(self.rate_objects, key=lambda r: r.rate)[:top]
+    def select_cheapest(self):      
+        return min(self.rate_objects, key=lambda r: r.rate)
     ###############################################################
-    def select_best(self, top=2):
-        return sorted(self.rate_objects, key=lambda r: r.rate, reverse=True)[:top]
+    def select_best(self):
+        return max(self.rate_objects, key=lambda r: r.rate, reverse=True)
     
 @dataclass(slots=True)
 class ArbitragePair:
     direct_name: str
     reverse_name: str
-    changer: str
+    direct_changer: str
+    reverse_changer: str
     best_direct_rate: float
     best_reverse_rate: float
     spread: float
-    profit_estimate: str="Future soon"
+    profit_estimate: float
+@dataclass(slots=True)
+class ArbitrageCycle:
+    direction_ab_name: str
+    direction_bc_name: str
+    direction_ca_name: str
+    direction_ab_changer: str
+    direction_bc_changer: str
+    direction_ca_changer: str
+    direction_ab_rate: float
+    direction_bc_rate: float
+    direction_ca_rate: float
+    spread: float
+    profit_estimate: str

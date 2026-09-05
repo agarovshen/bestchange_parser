@@ -15,36 +15,47 @@ class ArbitrageScanner:
         ]#1
         self.pairs = generate_pairs_list(self.currency_ids)
     ##################################################################
-    def prepare_exchange_data(self):
+    def prepare_exchange_data(self, settings):
+        capital = settings.capital
+        capital_currency_id = self.currencies.currency_by_code[settings.currency].currency_id
         rates_data = self.repository.get_rates(self.pairs)
-
         rates_by_direction = {}
 
         for rate in rates_data:
             from_id = rate["from_currency_id"]
             to_id = rate["to_currency_id"]
             rate["changer"] = self.changers.changers_map[rate["changer_id"]]
-            rate["from_currency"] = self.currencies.currencies_map[rate["from_currency_id"]]
-            rate["to_currency"] = self.currencies.currencies_map[rate["to_currency_id"]]
+            rate["from_currency"] = self.currencies.currency_by_id[rate["from_currency_id"]]
+            rate["to_currency"] = self.currencies.currency_by_id[rate["to_currency_id"]]
             del rate["changer_id"]
             del rate["from_currency_id"]
             del rate["to_currency_id"]
             rates_by_direction.setdefault((from_id, to_id), []).append(rate)
 
+        capital_rates = {
+            pair[0]: sum(float(rate["rate"]) for rate in rates) / len(rates) * capital
+            for pair, rates in rates_by_direction.items()
+            if pair[1] == capital_currency_id   
+        }
+
         valid_rates = {
-            pair: Rates(rates) 
-            for pair, rates in rates_by_direction.items() 
-            if (pair[1], pair[0]) in rates_by_direction 
+            pair: Rates(filtered_rates)
+            for pair, rates in rates_by_direction.items()
+            if (filtered_rates := [rate for rate in rates if rate["inmin"] <= capital_rates.get(pair[0], 0)]) and 
+            [
+                rate for rate in rates_by_direction.get((pair[1], pair[0]), []) 
+                if rate["inmin"] <= capital_rates.get(pair[1], 0)
+            ]
         }
         return valid_rates
  
     ######################################################################
-    def search(self, settings, directions_var = 2):
-        valid_rates = self.prepare_exchange_data() 
+    def search(self, settings, directions_var = 3):
+        valid_rates = self.prepare_exchange_data(settings)
 
         if directions_var == 2:
             return scan_for_two_directions(valid_rates)
-        
+
         elif directions_var == 3:
-            cycles = create_cycles(pairs, directions_data, rates_objects_by_direction)
+            cycles = create_cycles(valid_rates)
             return scan_for_cycles(cycles)
