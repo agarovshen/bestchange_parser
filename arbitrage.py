@@ -47,14 +47,14 @@ class ArbitrageScanner:
                 if rate["inmin"] <= capital_rates.get(pair[1], 0)
             ]
         }
-        return valid_rates
+        return valid_rates, capital
  
     ######################################################################
     def search(self, settings, directions_var = 3):
-        valid_rates = self.prepare_exchange_data(settings)
+        valid_rates, capital = self.prepare_exchange_data(settings)
 
         if directions_var == 2:
-            return scan_for_two_directions(valid_rates)
+            return scan_for_two_directions(valid_rates, capital)
 
         elif directions_var == 3:
             cycles = create_cycles(valid_rates)

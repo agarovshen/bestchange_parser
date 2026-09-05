@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from locale import currency
+from turtle import st
 from typing import Optional
 class ExchangeCycle:
     def __init__(self, direction_ab, direction_bc, direction_ca):
@@ -47,8 +48,7 @@ class Changers:
 @dataclass(slots=True)    
 class Rate:
     rate: float
-    from_currency: Currency
-    to_currency: Currency
+    direction: str
     changer: Changer
     inmin: float
     
@@ -56,8 +56,7 @@ class Rate:
     def from_dict(cls, data: dict) -> "Rate":
         return cls(
             rate = float(data["rate"]),
-            from_currency = data["from_currency"],
-            to_currency = data["to_currency"],
+            direction = f"{data['from_currency'].code}->{data['to_currency'].code}",
             changer = data["changer"],
             inmin = float(data["inmin"])
         )
@@ -65,12 +64,11 @@ class Rate:
 class Rates:
     def __init__(self, rates: list[dict]):
         self.rate_objects = [Rate.from_dict(r) for r in rates]
+        if self.rate_objects:
+            self.best_rate = min(self.rate_objects, key=lambda r: r.rate)
+        else:
+            self.best_rate = None
     ##############################################################
-    def select_cheapest(self):      
-        return min(self.rate_objects, key=lambda r: r.rate)
-    ###############################################################
-    def select_best(self):
-        return max(self.rate_objects, key=lambda r: r.rate, reverse=True)
     
 @dataclass(slots=True)
 class ArbitragePair:

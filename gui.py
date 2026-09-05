@@ -193,7 +193,6 @@ def run_app():
         txt.delete("1.0", "end")
         cnt = dirs_var.get()
         results = scan_arbitrage(settings=settings, directions_var=cnt)
-        print("3. results in gui")
 
         for item in results:
             txt.insert("end", f"--- LOOP (Spread: {item['spread']}) ---\n", "loop_header")

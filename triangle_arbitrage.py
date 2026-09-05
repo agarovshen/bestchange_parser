@@ -1,6 +1,7 @@
 from models import ArbitrageCycle, ExchangeCycle
 from logic import calculate_cycle_spreads
 
+import time
 
 def create_cycles(valid_rates):
 
@@ -8,7 +9,7 @@ def create_cycles(valid_rates):
         (a,b,c)
         for a,b in valid_rates.keys()
         for x,c in valid_rates.keys()
-        if x == b and (c,a) in valid_rates.keys()
+        if x == b and (c,a) in valid_rates.keys() and a < b and a < c
     ] 
     return [
         ExchangeCycle(
@@ -21,29 +22,32 @@ def create_cycles(valid_rates):
 ####################################################################################
 def scan_for_cycles(cycles):
     result = []
-    def direction_show(rate):
-        return f"{rate.from_currency.code} -> {rate.to_currency.code}"
+    start_time = time.perf_counter()
+
     for cycle in cycles:
-        rates = [
-            cycle.direction_ab.select_cheapest(),
-            cycle.direction_bc.select_cheapest(),
-            cycle.direction_ca.select_cheapest()
-        ]
-        spread = calculate_cycle_spreads(*(rate.rate for rate in rates))
-        if spread <= 0:
+        rate_ab = cycle.direction_ab.best_rate
+        rate_bc = cycle.direction_bc.best_rate
+        rate_ca = cycle.direction_ca.best_rate
+        spread = calculate_cycle_spreads(rate_ab.rate, rate_bc.rate, rate_ca.rate)
+        if spread <= 1:
             continue
         result_cycle = ArbitrageCycle(
-            direction_ab_name=direction_show(rates[0]),
-            direction_bc_name=direction_show(rates[1]),
-            direction_ca_name=direction_show(rates[2]),
-            direction_ab_changer=rates[0].changer.name,
-            direction_bc_changer=rates[1].changer.name,
-            direction_ca_changer=rates[2].changer.name,
-            direction_ab_rate=rates[0].rate,
-            direction_bc_rate=rates[1].rate,
-            direction_ca_rate=rates[2].rate,
+            direction_ab_name= rate_ab.direction,
+            direction_bc_name= rate_bc.direction,
+            direction_ca_name= rate_ca.direction,
+            direction_ab_changer=rate_ab.changer.name,
+            direction_bc_changer=rate_bc.changer.name,
+            direction_ca_changer=rate_ca.changer.name,
+            direction_ab_rate=rate_ab.rate,
+            direction_bc_rate=rate_bc.rate,
+            direction_ca_rate=rate_ca.rate,
             spread=spread,
             profit_estimate="future soon"
         )
         result.append(result_cycle)
-    return sorted(result, key=lambda x: x.spread, reverse=True)
+
+    result.sort(key=lambda x: x.spread, reverse=True)
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print(f"Сканирование циклов завершено за {execution_time:.3f} секунд")
+    return result

@@ -3,10 +3,9 @@ from logic import calculate_spread
 
 
 ######################################################################
-def scan_for_two_directions(valid_rates):
+def scan_for_two_directions(valid_rates, capital):
     result = []
     rates = list(valid_rates.values())
-    print("rates", rates[:5])  # Print first 5 rates for debugging
     for i in range(0, len(valid_rates), 2):
         direct_rates = rates[i]
         reverse_rates = rates[i + 1]
@@ -16,7 +15,7 @@ def scan_for_two_directions(valid_rates):
         from_code = direct_rate.from_currency.code
         to_code = direct_rate.to_currency.code
         spread = calculate_spread(direct_rate.rate, reverse_rate.rate)
-        if spread > 0:
+        if spread > 1:
             pair = ArbitragePair(
                 direct_name=f"{from_code}-{to_code}",
                 reverse_name=f"{to_code}-{from_code}",
@@ -25,7 +24,7 @@ def scan_for_two_directions(valid_rates):
                 best_direct_rate=direct_rate.rate,
                 best_reverse_rate=reverse_rate.rate,
                 spread=spread,
-                profit_estimate=100 * spread
+                profit_estimate=capital * spread/100
             )
             result.append(pair)
     return sorted(result, key=lambda x: x.spread, reverse=True)
